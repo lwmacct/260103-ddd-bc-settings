@@ -3,27 +3,32 @@
 ## ✅ 已完成的核心修复
 
 ### 1. Import 路径修正
+
 - ✅ 所有文件从 `260101-go-pkg-ddd` 更新到 `260103-ddd-bc-settings`
 - ✅ 移除 `eventhandler`, `auth`, `captcha`, `config` 等 IAM 专属导入
 - ✅ 修复 manualtest 为通用 HTTP 客户端
 
 ### 2. Import 循环解决
+
 - ✅ 移动 `SettingsCacheService` 接口到 Domain 层
 - ✅ 移除 `app/setting` → `infra/persistence` 的循环依赖
 - ✅ 修复 `setting_cached_query_repository.go` 命名冲突
 - ✅ 移除 seeds 模块的自引用
 
 ### 3. 重复常量清理
+
 - ✅ 删除 `entity.go` 中的重复常量定义
 - ✅ 保留 `constants.go` 作为唯一常量源
 - ✅ 保留 `input_types.go` 中的补充常量
 
 ### 4. 类型存根定义
+
 - ✅ 创建 `user_setting_stub.go` 提供 UserSetting 存根
 - ✅ 定义 Validator 接口存根
 - ✅ 定义 ValidationContext 存根
 
 ### 5. Handler 构造函数修复
+
 - ✅ 移除 Validator 参数（暂时跳过验证）
 - ✅ 添加缺失的 cache service 参数（传 nil）
 - ✅ 添加 `toCategoryMetaDTOs` 映射函数
@@ -35,7 +40,7 @@
 **问题**：Domain 接口返回 `[]any`，但 App 层期望 `[]SettingsCategoryDTO`
 
 ```
-pkg/modules/settings/infra/cache/settings_cache_service.go:42:6: 
+pkg/modules/settings/infra/cache/settings_cache_service.go:42:6:
 NewSettingsCacheService redeclared
 ```
 
@@ -84,17 +89,17 @@ internal/container/http.go:9:2: routes redeclared
 
 ## 📊 完成度统计
 
-| 层级 | 文件数 | 状态 |
-|------|--------|------|
-| Domain | 10 | ✅ 完成 |
-| Persistence | 10 | ✅ 完成 |
-| Cache | 3 | ⚠️ 类型不匹配 |
-| Application | 21 | ✅ 完成 |
-| Adapters | 7 | ✅ 完成 |
-| Seeds | 5 | ⚠️ 接口不匹配 |
-| Container | 4 | ⚠️ 重复声明 |
-| Manualtest | 5 | ✅ 完成 |
-| **总计** | **65** | **95%** |
+| 层级        | 文件数 | 状态          |
+| ----------- | ------ | ------------- |
+| Domain      | 10     | ✅ 完成       |
+| Persistence | 10     | ✅ 完成       |
+| Cache       | 3      | ⚠️ 类型不匹配 |
+| Application | 21     | ✅ 完成       |
+| Adapters    | 7      | ✅ 完成       |
+| Seeds       | 5      | ⚠️ 接口不匹配 |
+| Container   | 4      | ⚠️ 重复声明   |
+| Manualtest  | 5      | ✅ 完成       |
+| **总计**    | **65** | **95%**       |
 
 ## 🔧 建议修复顺序
 
@@ -127,7 +132,7 @@ internal/container/http.go:9:2: routes redeclared
 ✅ **Fx 依赖注入**：模块化装配完成  
 ✅ **垂直切分**：Settings Bounded Context 完全自治  
 ✅ **缓存装饰器**：透明的缓存失效策略  
-✅ **层级构建器**：Category → Group → Setting 三层聚合  
+✅ **层级构建器**：Category → Group → Setting 三层聚合
 
 ## 📝 下一步
 

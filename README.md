@@ -38,13 +38,13 @@ cmd/server/
 
 ## 模块职责
 
-| 层级                    | 职责     | 说明                                      |
-| ----------------------- | -------- | ----------------------------------------- |
-| `domain/setting`        | 业务核心 | 实体、值对象、Repository 接口、领域错误   |
-| `app/setting`           | 用例编排 | Command/Query Handler、DTO 映射、业务流程 |
-| `infra`                 | 技术实现 | GORM Repository、Redis 缓存、种子数据     |
-| `adapters/gin`          | 外部交互 | HTTP Handler、路由、测试                   |
-| `internal/container`    | 依赖注入 | Fx 模块组装、生命周期管理                 |
+| 层级                 | 职责     | 说明                                      |
+| -------------------- | -------- | ----------------------------------------- |
+| `domain/setting`     | 业务核心 | 实体、值对象、Repository 接口、领域错误   |
+| `app/setting`        | 用例编排 | Command/Query Handler、DTO 映射、业务流程 |
+| `infra`              | 技术实现 | GORM Repository、Redis 缓存、种子数据     |
+| `adapters/gin`       | 外部交互 | HTTP Handler、路由、测试                  |
+| `internal/container` | 依赖注入 | Fx 模块组装、生命周期管理                 |
 
 ## 开发工作流
 
@@ -101,34 +101,36 @@ pre-commit run --all
 
 ### Setting API
 
-| 方法   | 路径                          | 说明               | 权限                  |
-| ------ | ----------------------------- | ------------------ | --------------------- |
-| GET    | /api/admin/settings           | 配置列表（层级）   | admin:settings:list   |
-| GET    | /api/admin/settings/{key}     | 配置详情           | admin:settings:get    |
-| POST   | /api/admin/settings           | 创建配置           | admin:settings:create |
-| PUT    | /api/admin/settings/{key}     | 更新配置           | admin:settings:update |
-| DELETE | /api/admin/settings/{key}     | 删除配置           | admin:settings:delete |
-| POST   | /api/admin/settings/batch     | 批量更新配置       | admin:settings:update |
+| 方法   | 路径                      | 说明             | 权限                  |
+| ------ | ------------------------- | ---------------- | --------------------- |
+| GET    | /api/admin/settings       | 配置列表（层级） | admin:settings:list   |
+| GET    | /api/admin/settings/{key} | 配置详情         | admin:settings:get    |
+| POST   | /api/admin/settings       | 创建配置         | admin:settings:create |
+| PUT    | /api/admin/settings/{key} | 更新配置         | admin:settings:update |
+| DELETE | /api/admin/settings/{key} | 删除配置         | admin:settings:delete |
+| POST   | /api/admin/settings/batch | 批量更新配置     | admin:settings:update |
 
 ### Category API
 
-| 方法   | 路径                                    | 说明       | 权限                          |
-| ------ | --------------------------------------- | ---------- | ----------------------------- |
-| GET    | /api/admin/settings/categories          | 分类列表   | admin:settings:categories:list |
-| GET    | /api/admin/settings/categories/{id}     | 分类详情   | admin:settings:categories:get  |
-| POST   | /api/admin/settings/categories          | 创建分类   | admin:settings:categories:create |
-| PUT    | /api/admin/settings/categories/{id}     | 更新分类   | admin:settings:categories:update |
-| DELETE | /api/admin/settings/categories/{id}     | 删除分类   | admin:settings:categories:delete |
+| 方法   | 路径                                | 说明     | 权限                             |
+| ------ | ----------------------------------- | -------- | -------------------------------- |
+| GET    | /api/admin/settings/categories      | 分类列表 | admin:settings:categories:list   |
+| GET    | /api/admin/settings/categories/{id} | 分类详情 | admin:settings:categories:get    |
+| POST   | /api/admin/settings/categories      | 创建分类 | admin:settings:categories:create |
+| PUT    | /api/admin/settings/categories/{id} | 更新分类 | admin:settings:categories:update |
+| DELETE | /api/admin/settings/categories/{id} | 删除分类 | admin:settings:categories:delete |
 
 ## 数据库设计
 
 ### 核心表
 
 **settings 表**（配置定义）：
+
 - 字段：key, default_value (JSONB), scope, public, category_id, group, order, value_type, label, input_type, validation, ui_config (JSONB)
 - 索引：idx_settings_category_sort, idx_settings_scope, idx_settings_visible_to_user
 
 **setting_categories 表**（配置分类）：
+
 - 字段：key, label, icon, sort_order
 - 索引：主键 id，唯一键 key
 
