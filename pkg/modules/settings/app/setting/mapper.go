@@ -1,0 +1,248 @@
+package setting
+
+import (
+	"encoding/json"
+
+	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+)
+
+// ==================== Category Mappers ====================
+
+// ToCategoryDTO 将 SettingCategory 实体转换为 CategoryDTO
+func ToCategoryDTO(c *setting.SettingCategory) *CategoryDTO {
+	if c == nil {
+		return nil
+	}
+
+	return &CategoryDTO{
+		ID:        c.ID,
+		Key:       c.Key,
+		Label:     c.Label,
+		Icon:      c.Icon,
+		Order:     c.Order,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+	}
+}
+
+// ToCategoryListDTO 将 SettingCategory 实体列表转换为 CategoryDTO 列表
+func ToCategoryListDTO(categories []*setting.SettingCategory) []CategoryDTO {
+	if len(categories) == 0 {
+		return []CategoryDTO{}
+	}
+
+	dtos := make([]CategoryDTO, 0, len(categories))
+	for _, c := range categories {
+		if dto := ToCategoryDTO(c); dto != nil {
+			dtos = append(dtos, *dto)
+		}
+	}
+
+	return dtos
+}
+
+// ==================== Setting Mappers ====================
+
+// uiConfigRaw 内部结构用于解析 UIConfig JSONB
+type uiConfigRaw struct {
+	Hint      string              `json:"hint"`
+	Options   []SelectOptionDTO   `json:"options"`
+	DependsOn *DependsOnConfigDTO `json:"depends_on"`
+}
+
+// parseUIConfig 解析 UIConfig JSON 字符串
+func parseUIConfig(jsonStr string) UIConfigDTO {
+	if jsonStr == "" || jsonStr == "{}" {
+		return UIConfigDTO{}
+	}
+
+	var raw uiConfigRaw
+	if err := json.Unmarshal([]byte(jsonStr), &raw); err != nil {
+		return UIConfigDTO{}
+	}
+
+	return UIConfigDTO(raw)
+}
+
+// parseValidation 解析 Validation 字符串为 any 类型
+func parseValidation(validation string) any {
+	if validation == "" {
+		return nil
+	}
+	var result any
+	if err := json.Unmarshal([]byte(validation), &result); err != nil {
+		return nil
+	}
+	return result
+}
+
+// ToSettingDTO 将 Setting 实体转换为 SettingDTO
+func ToSettingDTO(s *setting.Setting) *SettingDTO {
+	if s == nil {
+		return nil
+	}
+
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
+	return &SettingDTO{
+		ID:           s.ID,
+		Key:          s.Key,
+		DefaultValue: s.DefaultValue,
+		Scope:        s.Scope,
+		CategoryID:   s.CategoryID,
+		Group:        s.Group,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
+		CreatedAt:    s.CreatedAt,
+		UpdatedAt:    s.UpdatedAt,
+	}
+}
+
+// ToSettingListDTO 将 Setting 实体列表转换为 SettingDTO 列表
+func ToSettingListDTO(settings []*setting.Setting) []SettingDTO {
+	if len(settings) == 0 {
+		return []SettingDTO{}
+	}
+
+	dtos := make([]SettingDTO, 0, len(settings))
+	for _, s := range settings {
+		if dto := ToSettingDTO(s); dto != nil {
+			dtos = append(dtos, *dto)
+		}
+	}
+
+	return dtos
+}
+
+// ToSettingsItemDTO 将 Setting 转换为 SettingsItemDTO（Admin 场景，包含全部字段）
+func ToSettingsItemDTO(s *setting.Setting) *SettingsItemDTO {
+	if s == nil {
+		return nil
+	}
+
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
+	return &SettingsItemDTO{
+		Key:          s.Key,
+		Value:        s.DefaultValue,
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		Scope:        s.Scope,
+		Public:       s.Public,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
+	}
+}
+
+// ==================== UserSetting Mappers ====================
+
+// ToUserSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 UserSettingDTO
+func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingDTO {
+	if s == nil {
+		return nil
+	}
+
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
+	dto := &UserSettingDTO{
+		Key:          s.Key,
+		Value:        s.DefaultValue, // 默认使用系统默认值
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		CategoryID:   s.CategoryID,
+		Group:        s.Group,
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
+	}
+
+	// 如果有用户自定义值，使用用户值
+	if us != nil {
+		dto.Value = us.Value
+		dto.IsCustomized = true
+	}
+
+	return dto
+}
+
+// ToUserSettingsItemDTO 将 Setting 定义和可选的 UserSetting 合并为 SettingsItemDTO
+//
+// User 场景现在也返回 Scope 和 Public 字段：
+//   - Scope: 前端根据此字段判断可编辑性（user=可编辑, system=只读）
+//   - Public: 标记系统设置是否对用户可见
+func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting) *SettingsItemDTO {
+	if s == nil {
+		return nil
+	}
+
+	// 设置默认 InputType
+	inputType := s.InputType
+	if inputType == "" {
+		inputType = "text"
+	}
+
+	dto := &SettingsItemDTO{
+		Key:          s.Key,
+		Value:        s.DefaultValue, // 默认使用系统默认值
+		DefaultValue: s.DefaultValue,
+		IsCustomized: false,
+		Scope:        s.Scope,  // 返回 Scope，前端判断可编辑性
+		Public:       s.Public, // 返回 Public 字段
+		ValueType:    s.ValueType,
+		Label:        s.Label,
+		Order:        s.Order,
+		InputType:    inputType,
+		Validation:   parseValidation(s.Validation),
+		UIConfig:     parseUIConfig(s.UIConfig),
+	}
+
+	// 如果有用户自定义值，使用用户值（仅 scope=user 才有用户值）
+	if us != nil {
+		dto.Value = us.Value
+		dto.IsCustomized = true
+	}
+
+	return dto
+}
+
+// extractValidationRule 从 Setting.Validation 字段获取验证规则（用于 JSON Logic 验证器）
+func extractValidationRule(validation string) string {
+	return validation
+}
+
+// toCategoryMetaDTOs 将 SettingCategory 实体列表转换为 CategoryMetaDTO 列表。
+func toCategoryMetaDTOs(categories []*setting.SettingCategory) []CategoryMetaDTO {
+	result := make([]CategoryMetaDTO, 0, len(categories))
+	for _, cat := range categories {
+		result = append(result, CategoryMetaDTO{
+			Category: cat.Key,
+			Label:    cat.Label,
+			Icon:     cat.Icon,
+			Order:    cat.Order,
+		})
+	}
+	return result
+}

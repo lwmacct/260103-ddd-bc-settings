@@ -1,0 +1,63 @@
+# 本地环境
+**/.DS_Store
+**/.local/*
+**/.venv/*
+**/.conda/*
+**/.task/remote/*
+
+# 构建输出
+**/dist/**
+**/build/**
+**/*.vsix
+**/bin/
+
+# 秘密文件
+**/.env
+**/.secret/*
+**/config.yaml
+
+# node_modules
+**/node_modules/**
+**/tsconfig.tsbuildinfo
+
+# 临时文件
+**/*.bak
+**/*.log
+**/*.tmp
+**/*.out
+**/*.temp
+**/*.cache
+
+# 临时目录
+tmp/**
+log/**
+logs/**
+temp/**
+cache/**
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+
+# 前端相关
+coverage/
+dist-ssr/
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+__snapshots__/
+
+# Swagger docs（由 swag 生成，但 docs.go 需要提交）
+**/docs/swagger.json
+**/docs/swagger.yaml
