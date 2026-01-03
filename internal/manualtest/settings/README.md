@@ -4,15 +4,15 @@
 
 ### ✅ 通过的测试 (7/7 - 100%)
 
-| 测试名称 | 端点 | 状态 | 说明 |
-|---------|------|------|------|
-| TestGetCategories | GET /api/admin/settings/categories | PASS | 成功获取 12-15 个分类 |
-| TestCreateCategory | POST /api/admin/settings/categories | PASS | **✨ 新修复** - 成功创建测试分类 |
-| TestSettingsAPIPerformance | GET /api/admin/settings/categories | PASS | 响应时间 733µs |
-| TestGetSettings | GET /api/admin/settings | PASS | **层级结构正常** (6分类, 15分组, 31配置项) |
-| TestGetSettingByKey | GET /api/admin/settings/:key | PASS | 成功获取配置详情 |
-| TestGetCategoryByID | GET /api/admin/settings/categories/:id | PASS | 成功获取分类详情 |
-| TestSettingsSchemaStructure | GET /api/admin/settings | PASS | **层级结构验证通过** |
+| 测试名称                    | 端点                                   | 状态 | 说明                                          |
+| --------------------------- | -------------------------------------- | ---- | --------------------------------------------- |
+| TestGetCategories           | GET /api/admin/settings/categories     | PASS | 成功获取 12-15 个分类                         |
+| TestCreateCategory          | POST /api/admin/settings/categories    | PASS | **✨ 新修复** - 成功创建测试分类              |
+| TestSettingsAPIPerformance  | GET /api/admin/settings/categories     | PASS | 响应时间 733µs                                |
+| TestGetSettings             | GET /api/admin/settings                | PASS | **层级结构正常** (6 分类, 15 分组, 31 配置项) |
+| TestGetSettingByKey         | GET /api/admin/settings/:key           | PASS | 成功获取配置详情                              |
+| TestGetCategoryByID         | GET /api/admin/settings/categories/:id | PASS | 成功获取分类详情                              |
+| TestSettingsSchemaStructure | GET /api/admin/settings                | PASS | **层级结构验证通过**                          |
 
 ### ✅ 已修复的问题
 
@@ -21,11 +21,13 @@
 **问题**: `TestCreateCategory` 测试失败，API 返回 `nil pointer dereference`
 
 **根本原因**：
+
 - `app/setting/module.go:58-60` 传入了 `nil` 作为 `settingsCache`
 - `CreateCategoryHandler.Handle()` 方法在第 67-68 行调用 `h.settingsCache.DeleteAll()`
 - nil 指针导致运行时 panic
 
 **修复方案**：
+
 ```go
 // ❌ 错误：传入 nil
 createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, nil)
@@ -35,6 +37,7 @@ createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.C
 ```
 
 **验证结果**：
+
 - ✅ API 返回 201 Created
 - ✅ 成功创建测试分类
 - ✅ 测试通过率从 85.7% 提升到 100%
@@ -43,17 +46,21 @@ createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.C
 ### 2. ✅ Settings 层级结构 API 500 错误 (P0 - 已解决)
 
 **根本原因**：
+
 - `handler/module.go:36` 传入了 `nil` 作为 `listSchemaHandler`
 - `app/setting/module.go:71` 传入了 `nil` 作为 `settingsCache`
 - 两个 nil 注入导致调用时 panic
 
 **修复方案**：
+
 1. 修复 `handler/module.go:36`：
+
    ```go
    usecases.ListSettings, // 修复：传入 ListSettings Handler
    ```
 
 2. 修复 `app/setting/module.go:46`：
+
    ```go
    func newSettingUseCases(repos persistence.SettingRepositories, settingsCache SettingsCacheService)
    ```
@@ -64,6 +71,7 @@ createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.C
    ```
 
 **验证结果**：
+
 - ✅ API 返回 200
 - ✅ 返回完整层级结构：6 分类 → 15 分组 → 31 配置项
 - ✅ 所有层级结构测试通过
@@ -75,12 +83,14 @@ createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.C
 **修复方案**：动态获取配置列表中的第一个存在的 key 进行测试
 
 **验证结果**：
+
 - ✅ 测试稳定通过
 - ✅ 不依赖特定测试数据
 
 ## 测试覆盖的端点
 
 ### Settings API
+
 - [x] GET /api/admin/settings (层级结构) ✅
 - [x] GET /api/admin/settings/:key ✅
 - [ ] POST /api/admin/settings
@@ -89,6 +99,7 @@ createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.C
 - [ ] POST /api/admin/settings/batch
 
 ### Settings Category API
+
 - [x] GET /api/admin/settings/categories ✅
 - [x] GET /api/admin/settings/categories/:id ✅
 - [ ] POST /api/admin/settings/categories
@@ -110,16 +121,17 @@ MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/... -run "TestGetCat
 
 ## 性能指标
 
-| API 端点 | 响应时间 | 状态 |
-|---------|----------|------|
-| GET /api/admin/settings/categories | 733µs | ✅ 优秀 |
-| GET /api/admin/settings (层级结构) | 6.7ms | ✅ 良好 |
-| POST /api/admin/settings/categories | ~1ms | ✅ 优秀 |
-| GET /api/admin/settings/:id | ~1ms | ✅ 优秀 |
+| API 端点                            | 响应时间 | 状态    |
+| ----------------------------------- | -------- | ------- |
+| GET /api/admin/settings/categories  | 733µs    | ✅ 优秀 |
+| GET /api/admin/settings (层级结构)  | 6.7ms    | ✅ 良好 |
+| POST /api/admin/settings/categories | ~1ms     | ✅ 优秀 |
+| GET /api/admin/settings/:id         | ~1ms     | ✅ 优秀 |
 
 ## 数据统计
 
 ### 配置层级结构
+
 - **6 个分类** (Categories)
   - general, security, email, oauth, notification, backup
 - **15 个分组** (Groups)
@@ -128,17 +140,20 @@ MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/... -run "TestGetCat
   - 包括系统配置、安全设置、邮件配置等
 
 ### Categories 数据
+
 - **15+ 个分类** (包含测试数据)
 - 6 个系统预设 + 9+ 个测试创建
 
 ## 下一步工作
 
 1. **完善测试覆盖** (优先级 P1) ✨
+
    - 添加 Create/Update/Delete Setting 测试
    - 添加 BatchUpdate 测试
    - 添加 Update/Delete Category 测试
 
 2. **性能优化** (优先级 P2)
+
    - 添加缓存命中率测试
    - 大数据量查询性能测试
    - 并发请求压力测试
@@ -171,5 +186,5 @@ MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/... -run "TestGetCat
 
 - ✅ 检查所有 Provider 的参数
 - ✅ 确保所有依赖都被正确注入
-- ✅ 使用编译时检查（如 var _ Interface = (*Impl)(nil)）
+- ✅ 使用编译时检查（如 var \_ Interface = (\*Impl)(nil)）
 - ✅ 添加 nil 检查和友好的错误消息
