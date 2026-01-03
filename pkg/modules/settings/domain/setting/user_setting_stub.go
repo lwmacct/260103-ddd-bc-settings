@@ -1,6 +1,6 @@
 package setting
 
-import "context"
+import "time"
 
 // UserSettingStub 用户配置存根定义。
 //
@@ -13,21 +13,16 @@ import "context"
 // 3. IAM 模块的 ListSettingsHandler 调用 SettingsBuilder 构建 schema
 
 // UserSetting 用户配置（临时存根）。
+//
+// 存储用户对配置项的自定义值，覆盖系统默认值。
+// Value 字段直接存储原生 JSON 值，类型应与对应配置项的 ValueType 一致。
 type UserSetting struct {
-	ID          uint
-	UserID      uint
-	SettingKey  string
-	Value       any
-	UpdatedAt   string
+	ID         uint      `json:"id"`          // 唯一标识
+	UserID     uint      `json:"user_id"`     // 用户 ID，关联 users 表
+	SettingKey string    `json:"setting_key"` // 配置键
+	Value      any       `json:"value"`       // 用户自定义值（JSONB 原生值）
+	CreatedAt  time.Time `json:"created_at"`  // 创建时间
+	UpdatedAt  time.Time `json:"updated_at"`  // 更新时间
 }
 
-// ValidationContext 校验上下文（临时存根）。
-type ValidationContext struct {
-	// TODO: 由 IAM 模块提供完整的实现
-}
-
-// Validator 校验器接口（临时存根）。
-type Validator interface {
-	// TODO: 由 IAM 模块提供完整的实现
-	Validate(ctx context.Context, vc ValidationContext, s *Setting, value any) error
-}
+// ValidationContext 和 Validator 定义已移至 validator.go

@@ -58,6 +58,26 @@ type SettingsCacheService interface {
 	DeleteAll(ctx context.Context) error
 
 	// =========================================================================
+	// 分类列表缓存操作
+	// =========================================================================
+
+	// GetUserCategories 获取用户分类列表缓存。
+	//
+	// 缓存的是 scope="user" 的分类元信息列表，系统级数据（不区分用户）。
+	// Key 格式：{prefix}settings:categories:user
+	//
+	// 缓存未命中返回 nil, nil。
+	GetUserCategories(ctx context.Context) ([]CategoryMetaDTO, error)
+
+	// SetUserCategories 设置用户分类列表缓存。
+	SetUserCategories(ctx context.Context, categories []CategoryMetaDTO) error
+
+	// DeleteUserCategories 删除用户分类列表缓存。
+	//
+	// 当 Category 结构变更时调用（与 [DeleteAll] 关联）。
+	DeleteUserCategories(ctx context.Context) error
+
+	// =========================================================================
 	// Category 实体缓存操作（供 Repository 装饰器使用）
 	// =========================================================================
 
