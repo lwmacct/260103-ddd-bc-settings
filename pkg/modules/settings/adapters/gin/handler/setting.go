@@ -2,6 +2,9 @@ package handler
 
 import (
 	"errors"
+	"fmt"
+	"log/slog"
+	"runtime/debug"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -80,13 +83,30 @@ func NewSettingHandler(
 //	@Failure		500			{object}	response.ErrorResponse									"服务器内部错误"
 //	@Router			/api/admin/settings [get]
 func (h *SettingHandler) GetSettings(c *gin.Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			slog.Error("GetSettings panic", "error", err, "stack", string(debug.Stack()))
+			c.JSON(500, gin.H{"code": 500, "message": "Internal Server Error", "error": fmt.Sprintf("%v", err)})
+			c.Abort()
+		}
+	}()
+
 	categoryKey := c.Query("category")
+	slog.Info("GetSettings called", "categoryKey", categoryKey, "handlerNil", h.listSchemaHandler == nil)
+
+	// 检查 Handler 是否为 nil
+	if h.listSchemaHandler == nil {
+		slog.Error("listSchemaHandler is nil!")
+		c.JSON(500, gin.H{"code": 500, "message": "listSchemaHandler is nil"})
+		return
+	}
 
 	// 调用 Schema Handler（返回层级结构）
 	schema, err := h.listSchemaHandler.Handle(c.Request.Context(), setting.ListSettingsQuery{
 		CategoryKey: categoryKey,
 	})
 	if err != nil {
+		slog.Error("GetSettings failed", "error", err, "categoryKey", categoryKey)
 		// 检查是否为分类不存在错误
 		if categoryKey != "" && err.Error() == "category not found: "+categoryKey {
 			response.NotFoundMessage(c, err.Error())
@@ -97,6 +117,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	}
 
 	response.OK(c, schema)
+	slog.Info("GetSettings success", "categoryKey", categoryKey, "schemaCount", len(schema))
 }
 
 // GetSetting 获取单个配置

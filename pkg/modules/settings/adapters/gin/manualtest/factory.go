@@ -1,10 +1,18 @@
 package manualtest
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
 )
+
+// 初始化随机数种子（在包初始化时执行一次）
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 // CreateTestSetting 创建测试配置，自动注册 Cleanup。
 //
@@ -30,7 +38,8 @@ func CreateTestSetting(t *testing.T, c *Client, prefix string) *setting.SettingD
 //	// ... 验证删除成功
 //	markDeleted() // 标记已删除，跳过 Cleanup
 func CreateTestSettingWithCleanupControl(t *testing.T, c *Client, prefix string) (*setting.SettingDTO, func()) {
-	key := prefix + "_" + randomString(8)
+	// 使用 prefix + 时间戳后缀 + 随机字符串确保唯一性
+	key := fmt.Sprintf("%s_%d_%s", prefix, time.Now().UnixNano(), randomString(4))
 
 	createReq := map[string]any{
 		"key":           key,
@@ -73,7 +82,8 @@ func CreateTestSettingCategory(t *testing.T, c *Client, prefix string) *setting.
 
 // CreateTestSettingCategoryWithCleanupControl 创建测试配置分类，返回清理控制函数。
 func CreateTestSettingCategoryWithCleanupControl(t *testing.T, c *Client, prefix string) (*setting.CategoryDTO, func()) {
-	key := prefix + "_" + randomString(8)
+	// 使用 prefix + 时间戳后缀 + 随机字符串确保唯一性
+	key := fmt.Sprintf("%s_%d_%s", prefix, time.Now().UnixNano(), randomString(4))
 
 	createReq := map[string]any{
 		"key":   key,
@@ -108,7 +118,8 @@ func randomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, length)
 	for i := range b {
-		b[i] = charset[i%len(charset)]
+		// 使用 math/rand 生成随机索引
+		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
 }

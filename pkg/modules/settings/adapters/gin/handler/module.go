@@ -33,7 +33,7 @@ func NewAllHandlers(usecases *setting.SettingUseCases) HandlersResult {
 			usecases.BatchUpdate,
 			usecases.Get,
 			usecases.List,
-			nil, // TODO: usecases.ListSettings
+			usecases.ListSettings, // 修复：传入 ListSettings Handler
 			usecases.CreateCategory,
 			usecases.UpdateCategory,
 			usecases.DeleteCategory,

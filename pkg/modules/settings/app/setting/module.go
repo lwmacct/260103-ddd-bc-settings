@@ -43,7 +43,7 @@ var UseCaseModule = fx.Module("settings.usecase",
 )
 
 // newSettingUseCases 创建 Setting UseCase 聚合。
-func newSettingUseCases(repos persistence.SettingRepositories) *SettingUseCases {
+func newSettingUseCases(repos persistence.SettingRepositories, settingsCache SettingsCacheService) *SettingUseCases {
 	// Command Handlers
 	createHandler := NewCreateHandler(repos.Command, repos.Query, nil)
 	updateHandler := NewUpdateHandler(repos.Command, repos.Query, nil)
@@ -55,9 +55,9 @@ func newSettingUseCases(repos persistence.SettingRepositories) *SettingUseCases 
 	listHandler := NewListHandler(repos.Query)
 
 	// Category Handlers
-	createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, nil)
-	updateCategoryHandler := NewUpdateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, nil)
-	deleteCategoryHandler := NewDeleteCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, repos.Query, nil)
+	createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, settingsCache)
+	updateCategoryHandler := NewUpdateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, settingsCache)
+	deleteCategoryHandler := NewDeleteCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, repos.Query, settingsCache)
 	getCategoryHandler := NewGetCategoryHandler(repos.CategoryQuery)
 	listCategoriesHandler := NewListCategoriesHandler(repos.CategoryQuery)
 
@@ -68,7 +68,7 @@ func newSettingUseCases(repos persistence.SettingRepositories) *SettingUseCases 
 		BatchUpdate:    batchUpdateHandler,
 		Get:            getHandler,
 		List:           listHandler,
-		ListSettings:   NewListSettingsHandler(repos.Query, repos.CategoryQuery, nil),
+		ListSettings:   NewListSettingsHandler(repos.Query, repos.CategoryQuery, settingsCache), // 修复：传入 cache
 		CreateCategory: createCategoryHandler,
 		UpdateCategory: updateCategoryHandler,
 		DeleteCategory: deleteCategoryHandler,
