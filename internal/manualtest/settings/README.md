@@ -147,13 +147,11 @@ MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/... -run "TestGetCat
 ## 下一步工作
 
 1. **完善测试覆盖** (优先级 P1) ✨
-
    - 添加 Create/Update/Delete Setting 测试
    - 添加 BatchUpdate 测试
    - 添加 Update/Delete Category 测试
 
 2. **性能优化** (优先级 P2)
-
    - 添加缓存命中率测试
    - 大数据量查询性能测试
    - 并发请求压力测试

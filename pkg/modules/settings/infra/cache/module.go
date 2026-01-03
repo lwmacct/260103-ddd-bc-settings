@@ -4,8 +4,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
+	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
 	settingdomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
 
@@ -21,6 +21,8 @@ type CacheResult struct {
 }
 
 // CacheModule 提供 Settings 模块的缓存服务。
+//
+// 依赖 Settings 模块的 config.Config（由 internal/container 提供）。
 var CacheModule = fx.Module("settings.cache",
 	fx.Provide(
 		NewSettingsCacheServiceAs,
@@ -28,10 +30,10 @@ var CacheModule = fx.Module("settings.cache",
 )
 
 // NewSettingsCacheServiceAs 创建缓存服务并同时提供两个接口。
-func NewSettingsCacheServiceAs(client *redis.Client, cfg *config.Config) CacheResult {
+func NewSettingsCacheServiceAs(client *redis.Client, settingsCfg *config.Config) CacheResult {
 	service := &settingsCacheService{
 		client:    client,
-		keyPrefix: cfg.Data.RedisKeyPrefix,
+		keyPrefix: settingsCfg.Redis.KeyPrefix,
 	}
 
 	return CacheResult{
