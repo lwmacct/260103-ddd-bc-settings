@@ -17,9 +17,11 @@ import (
 //   - 布尔值: true
 //   - JSON 对象/数组: {"key": "value"} 或 [1, 2, 3]
 //
-// Scope 字段决定配置的可编辑性：
-//   - "system": 系统设置，仅管理员可编辑
-//   - "user": 用户设置，用户可在 user_settings 表覆盖
+// Scope 字段决定配置的作用域和可编辑性：
+//   - "system": 系统级，全局唯一，管理员直接修改默认值
+//   - "org": 组织级，Org 可配置，Team 继承但不可覆盖
+//   - "team": 团队级，Team 可配置，可继承 Org 设置
+//   - "user": 用户级，用户可配置，可继承上级设置
 //
 // Public 字段决定配置值的可见性（仅对 scope=system 有意义）：
 //   - true: 所有用户可见（用于依赖检查、默认值继承）
@@ -142,7 +144,7 @@ func (s *Setting) IsValidValueType() bool {
 // IsValidScope 报告 Scope 是否有效。
 func (s *Setting) IsValidScope() bool {
 	switch s.Scope {
-	case ScopeSystem, ScopeUser:
+	case ScopeSystem, ScopeOrg, ScopeTeam, ScopeUser:
 		return true
 	default:
 		return false
@@ -167,6 +169,20 @@ func (s *Setting) IsUserScope() bool {
 	return s.Scope == ScopeUser
 }
 
+// IsOrgScope 报告是否为组织级配置。
+//
+// 组织级配置由 Org 配置，Team 可继承但不可覆盖。
+func (s *Setting) IsOrgScope() bool {
+	return s.Scope == ScopeOrg
+}
+
+// IsTeamScope 报告是否为团队级配置。
+//
+// 团队级配置由 Team 配置，可继承 Org 设置。
+func (s *Setting) IsTeamScope() bool {
+	return s.Scope == ScopeTeam
+}
+
 // IsPublic 报告是否对所有用户可见。
 //
 // 仅对 scope=system 的配置有意义：
@@ -180,9 +196,11 @@ func (s *Setting) IsPublic() bool {
 //
 // 可见条件：
 //   - scope=user（用户自己的配置）
+//   - scope=org（组织配置）
+//   - scope=team（团队配置）
 //   - scope=system 且 public=true（公开的系统配置）
 func (s *Setting) IsVisibleToUser() bool {
-	return s.IsUserScope() || (s.IsSystemScope() && s.IsPublic())
+	return s.IsUserScope() || s.IsOrgScope() || s.IsTeamScope() || (s.IsSystemScope() && s.IsPublic())
 }
 
 // =============================================================================

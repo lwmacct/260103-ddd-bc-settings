@@ -253,6 +253,8 @@ func TestSetting_IsUserScope(t *testing.T) {
 	}{
 		{"user scope", ScopeUser, true},
 		{"system scope", ScopeSystem, false},
+		{"org scope", ScopeOrg, false},
+		{"team scope", ScopeTeam, false},
 		{"invalid scope", "invalid", false},
 	}
 
@@ -260,6 +262,48 @@ func TestSetting_IsUserScope(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Setting{Scope: tt.scope}
 			assert.Equal(t, tt.want, s.IsUserScope())
+		})
+	}
+}
+
+func TestSetting_IsOrgScope(t *testing.T) {
+	tests := []struct {
+		name  string
+		scope string
+		want  bool
+	}{
+		{"org scope", ScopeOrg, true},
+		{"system scope", ScopeSystem, false},
+		{"user scope", ScopeUser, false},
+		{"team scope", ScopeTeam, false},
+		{"invalid scope", "invalid", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{Scope: tt.scope}
+			assert.Equal(t, tt.want, s.IsOrgScope())
+		})
+	}
+}
+
+func TestSetting_IsTeamScope(t *testing.T) {
+	tests := []struct {
+		name  string
+		scope string
+		want  bool
+	}{
+		{"team scope", ScopeTeam, true},
+		{"system scope", ScopeSystem, false},
+		{"org scope", ScopeOrg, false},
+		{"user scope", ScopeUser, false},
+		{"invalid scope", "invalid", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{Scope: tt.scope}
+			assert.Equal(t, tt.want, s.IsTeamScope())
 		})
 	}
 }
@@ -274,6 +318,8 @@ func TestSetting_IsVisibleToUser(t *testing.T) {
 		{"user scope is visible", ScopeUser, false, true},
 		{"system + public is visible", ScopeSystem, true, true},
 		{"system + private is not visible", ScopeSystem, false, false},
+		{"org scope is visible", ScopeOrg, false, true},
+		{"team scope is visible", ScopeTeam, false, true},
 	}
 
 	for _, tt := range tests {

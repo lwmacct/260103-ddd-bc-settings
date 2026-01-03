@@ -7,6 +7,10 @@ package setting
 const (
 	// ScopeSystem 系统设置，全局唯一，管理员直接修改 DefaultValue
 	ScopeSystem = "system"
+	// ScopeOrg 组织设置，Org 可配置，Team 继承但不可覆盖
+	ScopeOrg = "org"
+	// ScopeTeam 团队设置，Team 可配置，可继承 Org 设置
+	ScopeTeam = "team"
 	// ScopeUser 用户设置，DefaultValue 作为初始值，用户可覆盖
 	ScopeUser = "user"
 )
