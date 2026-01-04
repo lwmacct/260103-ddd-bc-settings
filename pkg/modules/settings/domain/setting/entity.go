@@ -8,6 +8,41 @@ import (
 	"time"
 )
 
+// ScopeLevel 定义作用域层级类型
+type ScopeLevel string
+
+const (
+	ScopeLevelSystem ScopeLevel = "system"
+	ScopeLevelOrg    ScopeLevel = "org"
+	ScopeLevelTeam   ScopeLevel = "team"
+	ScopeLevelUser   ScopeLevel = "user"
+)
+
+// scopeLevelOrder 定义层级顺序（数值越小越底层）
+// 用于比较：order 值越大，层级越高（更接近用户）
+var scopeLevelOrder = map[ScopeLevel]int{
+	ScopeLevelSystem: 0,
+	ScopeLevelOrg:    1,
+	ScopeLevelTeam:   2,
+	ScopeLevelUser:   3,
+}
+
+// compareScopeLevel 比较两个作用域的层级
+// 返回值: -1 表示 a < b, 0 表示 a == b, 1 表示 a > b
+func compareScopeLevel(a, b ScopeLevel) int {
+	orderA, okA := scopeLevelOrder[a]
+	orderB, okB := scopeLevelOrder[b]
+	if !okA || !okB {
+		return 0
+	}
+	if orderA < orderB {
+		return -1
+	} else if orderA > orderB {
+		return 1
+	}
+	return 0
+}
+
 // Setting 配置定义实体。
 // 存储配置项的 Schema 和默认值，支持分类、类型标注和 UI 元数据。
 //
@@ -17,30 +52,38 @@ import (
 //   - 布尔值: true
 //   - JSON 对象/数组: {"key": "value"} 或 [1, 2, 3]
 //
-// Scope 字段决定配置的作用域和可编辑性：
-//   - "system": 系统级，全局唯一，管理员直接修改默认值
-//   - "org": 组织级，Org 可配置，Team 继承但不可覆盖
-//   - "team": 团队级，Team 可配置，可继承 Org 设置
-//   - "user": 用户级，用户可配置，可继承上级设置
+// VisibleAt 字段决定配置的最小可见级别（从此级别向下可见）：
+//   - "system": 系统级，所有级别可见
+//   - "org": 组织级，Org/Team/User 可见
+//   - "team": 团队级，Team/User 可见
+//   - "user": 用户级，只有 User 可见
 //
-// Public 字段决定配置值的可见性（仅对 scope=system 有意义）：
-//   - true: 所有用户可见（用于依赖检查、默认值继承）
-//   - false: 仅管理员可见（敏感配置如密码、密钥）
+// ConfigurableAt 字段决定配置的最大可配置级别（到此级别为止可配置）：
+//   - "system": 只有系统管理员可配置
+//   - "org": Org 及以下级别可配置
+//   - "team": Team 及以下级别可配置
+//   - "user": 所有人可配置
+//
+// 场景示例：
+//   - VisibleAt="org", ConfigurableAt="org": Org 专用，Team 可见只读
+//   - VisibleAt="org", ConfigurableAt="team": Org 可配置，Team 可覆盖
+//   - VisibleAt="user", ConfigurableAt="team": User 可见，Team 可为 User 设置默认值
+//   - VisibleAt="user", ConfigurableAt="user": User 专用，只有 User 可配置
 //
 // InputType 决定前端控件类型和后端自动校验规则（email/url/password 等）。
 // Validation 存储自定义 JSON Logic 规则，用于业务级增强校验。
 // UIConfig 存储前端展示配置：hint（提示）、options（下拉选项）、depends_on（依赖关系）。
 type Setting struct {
-	ID           uint   // 唯一标识
-	Key          string // 配置键，唯一约束
-	DefaultValue any    // 默认值（JSONB 原生值）
-	Scope        string // 作用域：system（全局唯一）| user（可覆盖）
-	Public       bool   // 是否对所有用户可见（仅 scope=system 时有意义）
-	CategoryID   uint   // 外键关联 SettingCategory.ID
-	Group        string // 分组显示标签：基本设置, 本地化 等（直接存 label，空字符串表示无分组）
-	ValueType    string // 值类型：string, number, boolean, json（用于类型校验）
-	Label        string // 显示标签
-	Order        int    // 排序权重（小的在前）
+	ID             uint   // 唯一标识
+	Key            string // 配置键，唯一约束
+	DefaultValue   any    // 默认值（JSONB 原生值）
+	VisibleAt      string // 最小可见级别：system | org | team | user
+	ConfigurableAt string // 最大可配置级别：system | org | team | user
+	CategoryID     uint   // 外键关联 SettingCategory.ID
+	Group          string // 分组显示标签：基本设置, 本地化 等（直接存 label，空字符串表示无分组）
+	ValueType      string // 值类型：string, number, boolean, json（用于类型校验）
+	Label          string // 显示标签
+	Order          int    // 排序权重（小的在前）
 
 	// UI 配置
 	InputType  string // 控件类型：text, email, url, password, select 等（决定自动校验规则）
@@ -62,7 +105,8 @@ type Setting struct {
 //   - CategoryID 非零（由数据库外键保证引用完整性）
 //   - ValueType 有效
 //   - InputType 有效
-//   - Scope 有效
+//   - VisibleAt 有效
+//   - ConfigurableAt 有效
 //   - DefaultValue 与 ValueType 匹配
 //   - DefaultValue 通过 InputType 格式校验
 func (s *Setting) Validate() error {
@@ -81,8 +125,11 @@ func (s *Setting) Validate() error {
 	if !s.IsValidInputType() {
 		return ErrInvalidInputType
 	}
-	if !s.IsValidScope() {
-		return ErrInvalidScope
+	if !s.IsValidVisibleAt() {
+		return ErrInvalidVisibleAt
+	}
+	if !s.IsValidConfigurableAt() {
+		return ErrInvalidConfigurableAt
 	}
 	if err := s.ValidateValue(s.DefaultValue); err != nil {
 		return err
@@ -141,10 +188,20 @@ func (s *Setting) IsValidValueType() bool {
 	}
 }
 
-// IsValidScope 报告 Scope 是否有效。
-func (s *Setting) IsValidScope() bool {
-	switch s.Scope {
-	case ScopeSystem, ScopeOrg, ScopeTeam, ScopeUser:
+// IsValidVisibleAt 报告 VisibleAt 是否有效。
+func (s *Setting) IsValidVisibleAt() bool {
+	switch s.VisibleAt {
+	case string(ScopeLevelSystem), string(ScopeLevelOrg), string(ScopeLevelTeam), string(ScopeLevelUser):
+		return true
+	default:
+		return false
+	}
+}
+
+// IsValidConfigurableAt 报告 ConfigurableAt 是否有效。
+func (s *Setting) IsValidConfigurableAt() bool {
+	switch s.ConfigurableAt {
+	case string(ScopeLevelSystem), string(ScopeLevelOrg), string(ScopeLevelTeam), string(ScopeLevelUser):
 		return true
 	default:
 		return false
@@ -152,55 +209,107 @@ func (s *Setting) IsValidScope() bool {
 }
 
 // =============================================================================
-// Scope 方法
+// 可见性和可配置性方法
 // =============================================================================
+
+// IsVisibleAtScope 报告设置在指定级别是否可见。
+// 可见条件：查询级别的层级 >= VisibleAt 的层级
+func (s *Setting) IsVisibleAtScope(scope ScopeLevel) bool {
+	return compareScopeLevel(scope, ScopeLevel(s.VisibleAt)) >= 0
+}
+
+// IsConfigurableAtScope 报告设置在指定级别是否可配置。
+// 可配置条件：查询级别的层级 <= ConfigurableAt 的层级
+//
+// 例如：
+//   - ConfigurableAt=system (0)：只有 system (0) 可配置
+//   - ConfigurableAt=team (2)：system (0)、org (1)、team (2) 都可配置
+func (s *Setting) IsConfigurableAtScope(scope ScopeLevel) bool {
+	return compareScopeLevel(scope, ScopeLevel(s.ConfigurableAt)) <= 0
+}
+
+// IsSystemLevel 报告是否为系统级别设置（最小可见级别为 system）。
+func (s *Setting) IsSystemLevel() bool {
+	return s.VisibleAt == string(ScopeLevelSystem)
+}
+
+// IsOrgLevel 报告是否为组织级别设置（最小可见级别为 org）。
+func (s *Setting) IsOrgLevel() bool {
+	return s.VisibleAt == string(ScopeLevelOrg)
+}
+
+// IsTeamLevel 报告是否为团队级别设置（最小可见级别为 team）。
+func (s *Setting) IsTeamLevel() bool {
+	return s.VisibleAt == string(ScopeLevelTeam)
+}
+
+// IsUserLevel 报告是否为用户级别设置（最小可见级别为 user）。
+func (s *Setting) IsUserLevel() bool {
+	return s.VisibleAt == string(ScopeLevelUser)
+}
+
+// IsVisibleToUser 报告普通用户是否可见此配置。
+func (s *Setting) IsVisibleToUser() bool {
+	return s.IsVisibleAtScope(ScopeLevelUser)
+}
+
+// CanOrgConfigure 报告组织是否可以配置此设置。
+func (s *Setting) CanOrgConfigure() bool {
+	return s.IsConfigurableAtScope(ScopeLevelOrg)
+}
+
+// CanTeamConfigure 报告团队是否可以配置此设置。
+func (s *Setting) CanTeamConfigure() bool {
+	return s.IsConfigurableAtScope(ScopeLevelTeam)
+}
+
+// CanUserConfigure 报告用户是否可以配置此设置。
+func (s *Setting) CanUserConfigure() bool {
+	return s.IsConfigurableAtScope(ScopeLevelUser)
+}
+
+// IsOrgOnly 报告是否为组织专用设置（Org 可见可配置，Team 不可配置）。
+func (s *Setting) IsOrgOnly() bool {
+	return s.VisibleAt == string(ScopeLevelOrg) && s.ConfigurableAt == string(ScopeLevelOrg)
+}
+
+// IsTeamDefaultForUser 报告是否为团队可为用户设置的默认值（User 可见，Team 可配置）。
+func (s *Setting) IsTeamDefaultForUser() bool {
+	return s.VisibleAt == string(ScopeLevelUser) && s.ConfigurableAt == string(ScopeLevelTeam)
+}
+
+// =============================================================================
+// 向后兼容方法（废弃）
+// =============================================================================
+
+// Deprecated: 使用 IsVisibleAtScope 和 IsConfigurableAtScope 代替
 
 // IsSystemScope 报告是否为系统级配置。
 //
-// 系统级配置全局唯一，管理员直接修改 DefaultValue。
+// Deprecated: 使用 IsSystemLevel() 代替
 func (s *Setting) IsSystemScope() bool {
-	return s.Scope == ScopeSystem
+	return s.IsSystemLevel()
 }
 
 // IsUserScope 报告是否为用户级配置。
 //
-// 用户级配置允许用户在 user_settings 表中覆盖。
+// Deprecated: 使用 IsUserLevel() 代替
 func (s *Setting) IsUserScope() bool {
-	return s.Scope == ScopeUser
+	return s.IsUserLevel()
 }
 
 // IsOrgScope 报告是否为组织级配置。
 //
-// 组织级配置由 Org 配置，Team 可继承但不可覆盖。
+// Deprecated: 使用 IsOrgLevel() 代替
 func (s *Setting) IsOrgScope() bool {
-	return s.Scope == ScopeOrg
+	return s.IsOrgLevel()
 }
 
 // IsTeamScope 报告是否为团队级配置。
 //
-// 团队级配置由 Team 配置，可继承 Org 设置。
+// Deprecated: 使用 IsTeamLevel() 代替
 func (s *Setting) IsTeamScope() bool {
-	return s.Scope == ScopeTeam
-}
-
-// IsPublic 报告是否对所有用户可见。
-//
-// 仅对 scope=system 的配置有意义：
-//   - true: 所有用户可见（用于依赖检查、默认值继承）
-//   - false: 仅管理员可见（敏感配置）
-func (s *Setting) IsPublic() bool {
-	return s.Public
-}
-
-// IsVisibleToUser 报告普通用户是否可见此配置。
-//
-// 可见条件：
-//   - scope=user（用户自己的配置）
-//   - scope=org（组织配置）
-//   - scope=team（团队配置）
-//   - scope=system 且 public=true（公开的系统配置）
-func (s *Setting) IsVisibleToUser() bool {
-	return s.IsUserScope() || s.IsOrgScope() || s.IsTeamScope() || (s.IsSystemScope() && s.IsPublic())
+	return s.IsTeamLevel()
 }
 
 // =============================================================================
@@ -317,7 +426,6 @@ func (s *Setting) UpdateLabel(label string) {
 func (s *Setting) UpdateOrder(order int) {
 	s.Order = order
 }
-
 
 // =============================================================================
 // 辅助函数

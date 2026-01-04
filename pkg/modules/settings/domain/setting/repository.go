@@ -37,11 +37,12 @@ type QueryRepository interface {
 	FindByCategoryID(ctx context.Context, categoryID uint) ([]*Setting, error)
 
 	// FindByScope 根据作用域查找配置定义列表
-	// scope 可选值: "system"（系统设置）、"user"（用户可配置）
+	//
+	// Deprecated: 使用 FindByVisibleAt 代替
 	FindByScope(ctx context.Context, scope string) ([]*Setting, error)
 
 	// FindVisibleToUser 查找普通用户可见的配置定义
-	// 包含: scope=user（用户设置）+ scope=system 且 public=true（公开系统设置）
+	// 可见条件：VisibleAt <= user
 	FindVisibleToUser(ctx context.Context) ([]*Setting, error)
 
 	// FindAll 查找所有配置定义
@@ -49,6 +50,17 @@ type QueryRepository interface {
 
 	// ExistsByKey 检查 Key 是否已存在
 	ExistsByKey(ctx context.Context, key string) (bool, error)
+
+	// FindByVisibleAt 查询对指定级别可见的设置
+	// 返回条件：查询级别的层级 >= visible_at 的层级
+	FindByVisibleAt(ctx context.Context, visibleAt ScopeLevel) ([]*Setting, error)
+
+	// FindByConfigurableAt 查询指定级别可配置的设置
+	// 返回条件：查询级别的层级 >= configurable_at 的层级
+	FindByConfigurableAt(ctx context.Context, configurableAt ScopeLevel) ([]*Setting, error)
+
+	// FindByVisibleAndConfigurable 查询同时满足可见性和可配置性的设置
+	FindByVisibleAndConfigurable(ctx context.Context, visibleAt, configurableAt ScopeLevel) ([]*Setting, error)
 }
 
 // ============================================================================

@@ -18,86 +18,132 @@ func TestSetting_Validate(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "valid setting",
+			name: "valid setting - system level",
 			setting: &Setting{
-				Key:          "general.site_name",
-				CategoryID:   1,
-				Scope:        ScopeSystem,
-				ValueType:    ValueTypeString,
-				InputType:    InputTypeText,
-				DefaultValue: "My Site",
+				Key:            "general.site_name",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "My Site",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "valid setting - org visible, org configurable",
+			setting: &Setting{
+				Key:            "org.theme",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelOrg),
+				ConfigurableAt: string(ScopeLevelOrg),
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "dark",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "valid setting - user visible, team configurable",
+			setting: &Setting{
+				Key:            "user.notification",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelUser),
+				ConfigurableAt: string(ScopeLevelTeam),
+				ValueType:      ValueTypeBoolean,
+				InputType:      InputTypeSwitch,
+				DefaultValue:   true,
 			},
 			wantErr: nil,
 		},
 		{
 			name: "empty key",
 			setting: &Setting{
-				Key:          "",
-				CategoryID:   1,
-				Scope:        ScopeSystem,
-				ValueType:    ValueTypeString,
-				InputType:    InputTypeText,
-				DefaultValue: "test",
+				Key:            "",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "test",
 			},
 			wantErr: ErrInvalidValue,
 		},
 		{
 			name: "invalid key format - no dot",
 			setting: &Setting{
-				Key:          "invalidkey",
-				CategoryID:   1,
-				Scope:        ScopeSystem,
-				ValueType:    ValueTypeString,
-				InputType:    InputTypeText,
-				DefaultValue: "test",
+				Key:            "invalidkey",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "test",
 			},
 			wantErr: ErrInvalidKeyFormat,
 		},
 		{
 			name: "zero category id",
 			setting: &Setting{
-				Key:          "general.site_name",
-				CategoryID:   0,
-				Scope:        ScopeSystem,
-				ValueType:    ValueTypeString,
-				InputType:    InputTypeText,
-				DefaultValue: "test",
+				Key:            "general.site_name",
+				CategoryID:     0,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "test",
 			},
 			wantErr: ErrCategoryNotFound,
 		},
 		{
-			name: "invalid scope",
+			name: "invalid visible at",
 			setting: &Setting{
-				Key:          "general.site_name",
-				CategoryID:   1,
-				Scope:        "invalid",
-				ValueType:    ValueTypeString,
-				InputType:    InputTypeText,
-				DefaultValue: "test",
+				Key:            "general.site_name",
+				CategoryID:     1,
+				VisibleAt:      "invalid",
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "test",
 			},
-			wantErr: ErrInvalidScope,
+			wantErr: ErrInvalidVisibleAt,
+		},
+		{
+			name: "invalid configurable at",
+			setting: &Setting{
+				Key:            "general.site_name",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: "invalid",
+				ValueType:      ValueTypeString,
+				InputType:      InputTypeText,
+				DefaultValue:   "test",
+			},
+			wantErr: ErrInvalidConfigurableAt,
 		},
 		{
 			name: "invalid value type",
 			setting: &Setting{
-				Key:          "general.site_name",
-				CategoryID:   1,
-				Scope:        ScopeSystem,
-				ValueType:    "invalid",
-				InputType:    InputTypeText,
-				DefaultValue: "test",
+				Key:            "general.site_name",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      "invalid",
+				InputType:      InputTypeText,
+				DefaultValue:   "test",
 			},
 			wantErr: ErrInvalidValueType,
 		},
 		{
 			name: "invalid input type",
 			setting: &Setting{
-				Key:          "general.site_name",
-				CategoryID:   1,
-				Scope:        ScopeSystem,
-				ValueType:    ValueTypeString,
-				InputType:    "invalid_input",
-				DefaultValue: "test",
+				Key:            "general.site_name",
+				CategoryID:     1,
+				VisibleAt:      string(ScopeLevelSystem),
+				ConfigurableAt: string(ScopeLevelSystem),
+				ValueType:      ValueTypeString,
+				InputType:      "invalid_input",
+				DefaultValue:   "test",
 			},
 			wantErr: ErrInvalidInputType,
 		},
@@ -194,7 +240,7 @@ func TestSetting_CoerceValue(t *testing.T) {
 
 		// number 转换
 		{"string to number", ValueTypeNumber, "123.45", 123.45, false},
-		{"int already valid for number", ValueTypeNumber, 100, 100, false}, // int 已是有效 number 类型，直接返回,
+		{"int already valid for number", ValueTypeNumber, 100, 100, false}, // int 已是有效 number 类型，直接返回
 
 		// boolean 转换
 		{"string true to bool", ValueTypeBoolean, "true", true, false},
@@ -223,7 +269,396 @@ func TestSetting_CoerceValue(t *testing.T) {
 }
 
 // =============================================================================
-// Setting Scope 方法测试
+// Setting.IsVisibleAtScope 测试
+// =============================================================================
+
+func TestSetting_IsVisibleAtScope(t *testing.T) {
+	tests := []struct {
+		name        string
+		visibleAt   string
+		queryScope  ScopeLevel
+		wantVisible bool
+	}{
+		{
+			name:        "system visible at all scopes",
+			visibleAt:   string(ScopeLevelSystem),
+			queryScope:  ScopeLevelUser,
+			wantVisible: true, // user(3) >= system(0)
+		},
+		{
+			name:        "org visible at org scope",
+			visibleAt:   string(ScopeLevelOrg),
+			queryScope:  ScopeLevelOrg,
+			wantVisible: true, // org(1) >= org(1)
+		},
+		{
+			name:        "org visible at team scope",
+			visibleAt:   string(ScopeLevelOrg),
+			queryScope:  ScopeLevelTeam,
+			wantVisible: true, // team(2) >= org(1)
+		},
+		{
+			name:        "org visible at user scope",
+			visibleAt:   string(ScopeLevelOrg),
+			queryScope:  ScopeLevelUser,
+			wantVisible: true, // user(3) >= org(1)
+		},
+		{
+			name:        "org NOT visible at system scope",
+			visibleAt:   string(ScopeLevelOrg),
+			queryScope:  ScopeLevelSystem,
+			wantVisible: false, // system(0) < org(1)
+		},
+		{
+			name:        "team visible at team scope",
+			visibleAt:   string(ScopeLevelTeam),
+			queryScope:  ScopeLevelTeam,
+			wantVisible: true, // team(2) >= team(2)
+		},
+		{
+			name:        "team visible at user scope",
+			visibleAt:   string(ScopeLevelTeam),
+			queryScope:  ScopeLevelUser,
+			wantVisible: true, // user(3) >= team(2)
+		},
+		{
+			name:        "team NOT visible at org scope",
+			visibleAt:   string(ScopeLevelTeam),
+			queryScope:  ScopeLevelOrg,
+			wantVisible: false, // org(1) < team(2)
+		},
+		{
+			name:        "user visible only at user scope",
+			visibleAt:   string(ScopeLevelUser),
+			queryScope:  ScopeLevelUser,
+			wantVisible: true, // user(3) >= user(3)
+		},
+		{
+			name:        "user NOT visible at team scope",
+			visibleAt:   string(ScopeLevelUser),
+			queryScope:  ScopeLevelTeam,
+			wantVisible: false, // team(2) < user(3)
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt}
+			assert.Equal(t, tt.wantVisible, s.IsVisibleAtScope(tt.queryScope))
+		})
+	}
+}
+
+// =============================================================================
+// Setting.IsConfigurableAtScope 测试
+// =============================================================================
+
+func TestSetting_IsConfigurableAtScope(t *testing.T) {
+	tests := []struct {
+		name             string
+		configurableAt   string
+		queryScope       ScopeLevel
+		wantConfigurable bool
+	}{
+		{
+			name:             "system configurable only at system",
+			configurableAt:   string(ScopeLevelSystem),
+			queryScope:       ScopeLevelSystem,
+			wantConfigurable: true, // system(0) <= system(0)
+		},
+		{
+			name:             "system NOT configurable at org",
+			configurableAt:   string(ScopeLevelSystem),
+			queryScope:       ScopeLevelOrg,
+			wantConfigurable: false, // org(1) > system(0)
+		},
+		{
+			name:             "org configurable at system",
+			configurableAt:   string(ScopeLevelOrg),
+			queryScope:       ScopeLevelSystem,
+			wantConfigurable: true, // system(0) <= org(1)
+		},
+		{
+			name:             "org configurable at org",
+			configurableAt:   string(ScopeLevelOrg),
+			queryScope:       ScopeLevelOrg,
+			wantConfigurable: true, // org(1) <= org(1)
+		},
+		{
+			name:             "org NOT configurable at team",
+			configurableAt:   string(ScopeLevelOrg),
+			queryScope:       ScopeLevelTeam,
+			wantConfigurable: false, // team(2) > org(1)
+		},
+		{
+			name:             "team configurable at org",
+			configurableAt:   string(ScopeLevelTeam),
+			queryScope:       ScopeLevelOrg,
+			wantConfigurable: true, // org(1) <= team(2)
+		},
+		{
+			name:             "team configurable at team",
+			configurableAt:   string(ScopeLevelTeam),
+			queryScope:       ScopeLevelTeam,
+			wantConfigurable: true, // team(2) <= team(2)
+		},
+		{
+			name:             "team NOT configurable at user",
+			configurableAt:   string(ScopeLevelTeam),
+			queryScope:       ScopeLevelUser,
+			wantConfigurable: false, // user(3) > team(2)
+		},
+		{
+			name:             "user configurable at all scopes",
+			configurableAt:   string(ScopeLevelUser),
+			queryScope:       ScopeLevelSystem,
+			wantConfigurable: true, // system(0) <= user(3)
+		},
+		{
+			name:             "user configurable at user",
+			configurableAt:   string(ScopeLevelUser),
+			queryScope:       ScopeLevelUser,
+			wantConfigurable: true, // user(3) <= user(3)
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{ConfigurableAt: tt.configurableAt}
+			assert.Equal(t, tt.wantConfigurable, s.IsConfigurableAtScope(tt.queryScope))
+		})
+	}
+}
+
+// =============================================================================
+// Setting 层级检测方法测试
+// =============================================================================
+
+func TestSetting_IsSystemLevel(t *testing.T) {
+	tests := []struct {
+		name      string
+		visibleAt string
+		want      bool
+	}{
+		{"system level", string(ScopeLevelSystem), true},
+		{"org level", string(ScopeLevelOrg), false},
+		{"team level", string(ScopeLevelTeam), false},
+		{"user level", string(ScopeLevelUser), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt}
+			assert.Equal(t, tt.want, s.IsSystemLevel())
+		})
+	}
+}
+
+func TestSetting_IsOrgLevel(t *testing.T) {
+	tests := []struct {
+		name      string
+		visibleAt string
+		want      bool
+	}{
+		{"system level", string(ScopeLevelSystem), false},
+		{"org level", string(ScopeLevelOrg), true},
+		{"team level", string(ScopeLevelTeam), false},
+		{"user level", string(ScopeLevelUser), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt}
+			assert.Equal(t, tt.want, s.IsOrgLevel())
+		})
+	}
+}
+
+func TestSetting_IsTeamLevel(t *testing.T) {
+	tests := []struct {
+		name      string
+		visibleAt string
+		want      bool
+	}{
+		{"system level", string(ScopeLevelSystem), false},
+		{"org level", string(ScopeLevelOrg), false},
+		{"team level", string(ScopeLevelTeam), true},
+		{"user level", string(ScopeLevelUser), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt}
+			assert.Equal(t, tt.want, s.IsTeamLevel())
+		})
+	}
+}
+
+func TestSetting_IsUserLevel(t *testing.T) {
+	tests := []struct {
+		name      string
+		visibleAt string
+		want      bool
+	}{
+		{"system level", string(ScopeLevelSystem), false},
+		{"org level", string(ScopeLevelOrg), false},
+		{"team level", string(ScopeLevelTeam), false},
+		{"user level", string(ScopeLevelUser), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt}
+			assert.Equal(t, tt.want, s.IsUserLevel())
+		})
+	}
+}
+
+// =============================================================================
+// Setting 可配置性检测方法测试
+// =============================================================================
+
+func TestSetting_CanOrgConfigure(t *testing.T) {
+	tests := []struct {
+		name           string
+		configurableAt string
+		want           bool
+	}{
+		// ConfigurableAt 定义最大可配置级别（到此级别为止可配置）
+		// system(0) 只有 system 可配置
+		{"system configurable", string(ScopeLevelSystem), false},
+		// org(1) system 和 org 可配置
+		{"org configurable", string(ScopeLevelOrg), true},
+		// team(2) system、org、team 可配置
+		{"team configurable", string(ScopeLevelTeam), true},
+		// user(3) 所有级别都可配置
+		{"user configurable", string(ScopeLevelUser), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{ConfigurableAt: tt.configurableAt}
+			assert.Equal(t, tt.want, s.CanOrgConfigure())
+		})
+	}
+}
+
+func TestSetting_CanTeamConfigure(t *testing.T) {
+	tests := []struct {
+		name           string
+		configurableAt string
+		want           bool
+	}{
+		// system(0) 只有 system 可配置
+		{"system configurable", string(ScopeLevelSystem), false},
+		// org(1) system 和 org 可配置，team 不可配置
+		{"org configurable", string(ScopeLevelOrg), false},
+		// team(2) system、org、team 可配置
+		{"team configurable", string(ScopeLevelTeam), true},
+		// user(3) 所有级别都可配置
+		{"user configurable", string(ScopeLevelUser), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{ConfigurableAt: tt.configurableAt}
+			assert.Equal(t, tt.want, s.CanTeamConfigure())
+		})
+	}
+}
+
+func TestSetting_CanUserConfigure(t *testing.T) {
+	tests := []struct {
+		name           string
+		configurableAt string
+		want           bool
+	}{
+		// system(0) 只有 system 可配置
+		{"system configurable", string(ScopeLevelSystem), false},
+		// org(1) system 和 org 可配置
+		{"org configurable", string(ScopeLevelOrg), false},
+		// team(2) system、org、team 可配置
+		{"team configurable", string(ScopeLevelTeam), false},
+		// user(3) 所有级别都可配置
+		{"user configurable", string(ScopeLevelUser), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{ConfigurableAt: tt.configurableAt}
+			assert.Equal(t, tt.want, s.CanUserConfigure())
+		})
+	}
+}
+
+// =============================================================================
+// Setting 组合场景方法测试
+// =============================================================================
+
+func TestSetting_IsOrgOnly(t *testing.T) {
+	tests := []struct {
+		name           string
+		visibleAt      string
+		configurableAt string
+		want           bool
+	}{
+		{"org visible, org configurable", string(ScopeLevelOrg), string(ScopeLevelOrg), true},
+		{"org visible, team configurable", string(ScopeLevelOrg), string(ScopeLevelTeam), false},
+		{"system visible, system configurable", string(ScopeLevelSystem), string(ScopeLevelSystem), false},
+		{"user visible, user configurable", string(ScopeLevelUser), string(ScopeLevelUser), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt, ConfigurableAt: tt.configurableAt}
+			assert.Equal(t, tt.want, s.IsOrgOnly())
+		})
+	}
+}
+
+func TestSetting_IsTeamDefaultForUser(t *testing.T) {
+	tests := []struct {
+		name           string
+		visibleAt      string
+		configurableAt string
+		want           bool
+	}{
+		{"user visible, team configurable", string(ScopeLevelUser), string(ScopeLevelTeam), true},
+		{"user visible, user configurable", string(ScopeLevelUser), string(ScopeLevelUser), false},
+		{"team visible, team configurable", string(ScopeLevelTeam), string(ScopeLevelTeam), false},
+		{"user visible, org configurable", string(ScopeLevelUser), string(ScopeLevelOrg), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt, ConfigurableAt: tt.configurableAt}
+			assert.Equal(t, tt.want, s.IsTeamDefaultForUser())
+		})
+	}
+}
+
+func TestSetting_IsVisibleToUser(t *testing.T) {
+	tests := []struct {
+		name      string
+		visibleAt string
+		want      bool
+	}{
+		{"system visible to user", string(ScopeLevelSystem), true},
+		{"org visible to user", string(ScopeLevelOrg), true},
+		{"team visible to user", string(ScopeLevelTeam), true},
+		{"user visible to user", string(ScopeLevelUser), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Setting{VisibleAt: tt.visibleAt}
+			assert.Equal(t, tt.want, s.IsVisibleToUser())
+		})
+	}
+}
+
+// =============================================================================
+// 向后兼容方法测试
 // =============================================================================
 
 func TestSetting_IsSystemScope(t *testing.T) {
@@ -239,7 +674,7 @@ func TestSetting_IsSystemScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Setting{Scope: tt.scope}
+			s := &Setting{VisibleAt: tt.scope}
 			assert.Equal(t, tt.want, s.IsSystemScope())
 		})
 	}
@@ -260,7 +695,7 @@ func TestSetting_IsUserScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Setting{Scope: tt.scope}
+			s := &Setting{VisibleAt: tt.scope}
 			assert.Equal(t, tt.want, s.IsUserScope())
 		})
 	}
@@ -281,7 +716,7 @@ func TestSetting_IsOrgScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Setting{Scope: tt.scope}
+			s := &Setting{VisibleAt: tt.scope}
 			assert.Equal(t, tt.want, s.IsOrgScope())
 		})
 	}
@@ -302,30 +737,8 @@ func TestSetting_IsTeamScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Setting{Scope: tt.scope}
+			s := &Setting{VisibleAt: tt.scope}
 			assert.Equal(t, tt.want, s.IsTeamScope())
-		})
-	}
-}
-
-func TestSetting_IsVisibleToUser(t *testing.T) {
-	tests := []struct {
-		name   string
-		scope  string
-		public bool
-		want   bool
-	}{
-		{"user scope is visible", ScopeUser, false, true},
-		{"system + public is visible", ScopeSystem, true, true},
-		{"system + private is not visible", ScopeSystem, false, false},
-		{"org scope is visible", ScopeOrg, false, true},
-		{"team scope is visible", ScopeTeam, false, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &Setting{Scope: tt.scope, Public: tt.public}
-			assert.Equal(t, tt.want, s.IsVisibleToUser())
 		})
 	}
 }

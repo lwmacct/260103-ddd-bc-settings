@@ -12,16 +12,17 @@ import (
 //
 // 索引设计：
 //   - idx_settings_category_sort: 复合索引 (category_id, group, order, key) 覆盖分类查询和排序
-//   - idx_settings_scope: 单列索引用于 scope 过滤
-//   - idx_settings_visible_to_user: 复合索引 (scope, public) 用于 FindVisibleToUser 查询
+//   - idx_settings_visible_at: 单列索引用于可见性过滤
+//   - idx_settings_configurable_at: 单列索引用于可配置性过滤
+//   - idx_settings_visible_configurable: 复合索引 (visible_at, configurable_at) 用于组合查询
 //
 //nolint:recvcheck // TableName uses value receiver per GORM convention
 type SettingModel struct {
-	ID           uint           `gorm:"primaryKey"`
-	Key          string         `gorm:"uniqueIndex;size:100;not null"`
-	DefaultValue datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"` // JSONB 原生值
-	Scope        string         `gorm:"size:20;not null;default:'user';index:idx_settings_scope;index:idx_settings_visible_to_user,priority:1"`
-	Public       bool           `gorm:"not null;default:false;index:idx_settings_visible_to_user,priority:2"` // 是否对用户可见
+	ID             uint           `gorm:"primaryKey"`
+	Key            string         `gorm:"uniqueIndex;size:100;not null"`
+	DefaultValue   datatypes.JSON `gorm:"type:jsonb;not null;default:'null'"` // JSONB 原生值
+	VisibleAt      string         `gorm:"size:20;not null;default:'user';index:idx_settings_visible_at;index:idx_settings_visible_configurable,priority:1"`
+	ConfigurableAt string         `gorm:"size:20;not null;default:'user';index:idx_settings_configurable_at;index:idx_settings_visible_configurable,priority:2"`
 
 	// 复合索引：覆盖 FindByCategoryID 的 WHERE + ORDER BY
 	CategoryID uint   `gorm:"not null;index:idx_settings_category_sort,priority:1"`
@@ -54,21 +55,21 @@ func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
 	defaultValueJSON, _ := json.Marshal(entity.DefaultValue) //nolint:errchkjson // DefaultValue 是任意 JSONB 值
 
 	return &SettingModel{
-		ID:           entity.ID,
-		Key:          entity.Key,
-		DefaultValue: datatypes.JSON(defaultValueJSON),
-		Scope:        entity.Scope,
-		Public:       entity.Public,
-		CategoryID:   entity.CategoryID,
-		Group:        entity.Group,
-		Order:        entity.Order,
-		ValueType:    entity.ValueType,
-		Label:        entity.Label,
-		InputType:    entity.InputType,
-		Validation:   entity.Validation,
-		UIConfig:     datatypes.JSON(entity.UIConfig),
-		CreatedAt:    entity.CreatedAt,
-		UpdatedAt:    entity.UpdatedAt,
+		ID:             entity.ID,
+		Key:            entity.Key,
+		DefaultValue:   datatypes.JSON(defaultValueJSON),
+		VisibleAt:      entity.VisibleAt,
+		ConfigurableAt: entity.ConfigurableAt,
+		CategoryID:     entity.CategoryID,
+		Group:          entity.Group,
+		Order:          entity.Order,
+		ValueType:      entity.ValueType,
+		Label:          entity.Label,
+		InputType:      entity.InputType,
+		Validation:     entity.Validation,
+		UIConfig:       datatypes.JSON(entity.UIConfig),
+		CreatedAt:      entity.CreatedAt,
+		UpdatedAt:      entity.UpdatedAt,
 	}
 }
 
@@ -83,21 +84,21 @@ func (m *SettingModel) ToEntity() *setting.Setting {
 	_ = json.Unmarshal(m.DefaultValue, &defaultValue)
 
 	return &setting.Setting{
-		ID:           m.ID,
-		Key:          m.Key,
-		DefaultValue: defaultValue,
-		Scope:        m.Scope,
-		Public:       m.Public,
-		CategoryID:   m.CategoryID,
-		Group:        m.Group,
-		ValueType:    m.ValueType,
-		Label:        m.Label,
-		Order:        m.Order,
-		InputType:    m.InputType,
-		Validation:   m.Validation,
-		UIConfig:     string(m.UIConfig),
-		CreatedAt:    m.CreatedAt,
-		UpdatedAt:    m.UpdatedAt,
+		ID:             m.ID,
+		Key:            m.Key,
+		DefaultValue:   defaultValue,
+		VisibleAt:      m.VisibleAt,
+		ConfigurableAt: m.ConfigurableAt,
+		CategoryID:     m.CategoryID,
+		Group:          m.Group,
+		ValueType:      m.ValueType,
+		Label:          m.Label,
+		Order:          m.Order,
+		InputType:      m.InputType,
+		Validation:     m.Validation,
+		UIConfig:       string(m.UIConfig),
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
 	}
 }
 

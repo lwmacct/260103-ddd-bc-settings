@@ -30,8 +30,14 @@ var (
 	// ErrInvalidValidationRule 无效的验证规则
 	ErrInvalidValidationRule = errors.New("无效的验证规则")
 
-	// ErrInvalidScope 无效的配置作用域
+	// ErrInvalidScope 无效的配置作用域（废弃，保留向后兼容）
 	ErrInvalidScope = errors.New("无效的配置作用域")
+
+	// ErrInvalidVisibleAt 无效的最小可见级别
+	ErrInvalidVisibleAt = errors.New("无效的最小可见级别")
+
+	// ErrInvalidConfigurableAt 无效的最大可配置级别
+	ErrInvalidConfigurableAt = errors.New("无效的最大可配置级别")
 
 	// ErrCannotOverrideSystemSetting 系统设置不能被用户覆盖
 	ErrCannotOverrideSystemSetting = errors.New("系统设置不能被用户覆盖")

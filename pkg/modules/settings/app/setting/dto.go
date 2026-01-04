@@ -54,20 +54,21 @@ type DependsOnConfigDTO struct {
 
 // SettingDTO 配置响应 DTO
 type SettingDTO struct {
-	ID           uint        `json:"id"`
-	Key          string      `json:"key"`
-	DefaultValue any         `json:"default_value"` // JSONB 原生值
-	Scope        string      `json:"scope"`         // system | user
-	CategoryID   uint        `json:"category_id"`
-	Group        string      `json:"group"`
-	ValueType    string      `json:"value_type"`
-	Label        string      `json:"label"`
-	Order        int         `json:"order"`
-	InputType    string      `json:"input_type"`           // 控件类型
-	Validation   any         `json:"validation,omitempty"` // JSON Logic 规则
-	UIConfig     UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID             uint        `json:"id"`
+	Key            string      `json:"key"`
+	DefaultValue   any         `json:"default_value"`   // JSONB 原生值
+	VisibleAt      string      `json:"visible_at"`      // 最小可见级别：system | org | team | user
+	ConfigurableAt string      `json:"configurable_at"` // 最大可配置级别：system | org | team | user
+	CategoryID     uint        `json:"category_id"`
+	Group          string      `json:"group"`
+	ValueType      string      `json:"value_type"`
+	Label          string      `json:"label"`
+	Order          int         `json:"order"`
+	InputType      string      `json:"input_type"`           // 控件类型
+	Validation     any         `json:"validation,omitempty"` // JSON Logic 规则
+	UIConfig       UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
 }
 
 // CreateResultDTO 创建配置结果 DTO
@@ -79,18 +80,18 @@ type CreateResultDTO struct {
 
 // SettingsItemDTO Settings API 专用 DTO（Admin/User 统一）
 type SettingsItemDTO struct {
-	Key          string      `json:"key"`
-	Value        any         `json:"value"`         // 实际生效值
-	DefaultValue any         `json:"default_value"` // 系统默认值
-	IsCustomized bool        `json:"is_customized"` // 是否用户自定义
-	Scope        string      `json:"scope"`         // system | user（用于前端判断可编辑性）
-	Public       bool        `json:"public"`        // 是否对所有用户可见（仅 scope=system 时有意义）
-	ValueType    string      `json:"value_type"`
-	Label        string      `json:"label"`
-	Order        int         `json:"order"`
-	InputType    string      `json:"input_type"`           // 控件类型
-	Validation   any         `json:"validation,omitempty"` // JSON Logic 规则
-	UIConfig     UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
+	Key            string      `json:"key"`
+	Value          any         `json:"value"`           // 实际生效值
+	DefaultValue   any         `json:"default_value"`   // 系统默认值
+	IsCustomized   bool        `json:"is_customized"`   // 是否用户自定义
+	VisibleAt      string      `json:"visible_at"`      // 最小可见级别
+	ConfigurableAt string      `json:"configurable_at"` // 最大可配置级别
+	ValueType      string      `json:"value_type"`
+	Label          string      `json:"label"`
+	Order          int         `json:"order"`
+	InputType      string      `json:"input_type"`           // 控件类型
+	Validation     any         `json:"validation,omitempty"` // JSON Logic 规则
+	UIConfig       UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
 }
 
 // SettingsGroupDTO Settings API 分组
