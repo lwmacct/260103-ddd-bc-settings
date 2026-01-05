@@ -104,6 +104,22 @@ definitions:
         description: 消息描述
         type: string
     type: object
+  response.DataResponse-array_setting_PublicSettingsCategoryDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/setting.PublicSettingsCategoryDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
   response.DataResponse-array_setting_SettingsCategoryDTO:
     properties:
       code:
@@ -194,6 +210,34 @@ definitions:
         description: eq, ne, gt, lt（默认 eq）
         type: string
       value: {}
+    type: object
+  setting.PublicSettingItemDTO:
+    properties:
+      key:
+        type: string
+      label:
+        type: string
+      value: {}
+    type: object
+  setting.PublicSettingsCategoryDTO:
+    properties:
+      category:
+        type: string
+      groups:
+        items:
+          $ref: '#/definitions/setting.PublicSettingsGroupDTO'
+        type: array
+      label:
+        type: string
+    type: object
+  setting.PublicSettingsGroupDTO:
+    properties:
+      name:
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/setting.PublicSettingItemDTO'
+        type: array
     type: object
   setting.SelectOptionDTO:
     properties:
@@ -749,6 +793,33 @@ paths:
       summary: 更新配置分类
       tags:
       - categories
+  /api/public/settings:
+    get:
+      consumes:
+      - application/json
+      description: 获取公开可见的配置数据（VisibleAt="public"），用于前端展示站点信息等。无需认证。
+      parameters:
+      - in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 公开配置列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_setting_PublicSettingsCategoryDTO'
+        "404":
+          description: 分类不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 公开配置列表
+      tags:
+      - public
 securityDefinitions:
   BearerAuth:
     description: Bearer token authentication

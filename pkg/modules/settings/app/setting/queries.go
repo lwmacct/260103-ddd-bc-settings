@@ -36,6 +36,12 @@ type ListSettingsQuery struct {
 	CategoryKey string // 可选：按分类 Key 过滤（如 "general"），为空时返回全量
 }
 
+// PublicSettingsQuery 获取公开配置查询（无需认证）
+// 返回 VisibleAt="public" 的设置，用于公开 API
+type PublicSettingsQuery struct {
+	CategoryKey string // 可选：按分类 Key 过滤
+}
+
 // ==================== UserSetting Queries ====================
 
 // UserGetQuery 获取用户配置查询（合并默认值）

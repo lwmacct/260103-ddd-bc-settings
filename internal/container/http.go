@@ -49,8 +49,8 @@ func registerRoutes(
 		c.Next()
 	})
 
-	// 获取所有 Settings 路由
-	allRoutes := settingsroutes.Admin(settingHandler, settingsCfg)
+	// 获取所有 Settings 路由（包含 Admin 和 Public）
+	allRoutes := settingsroutes.AllRouteBindings(settingHandler, settingsCfg)
 
 	slog.Info("Registering routes",
 		"count", len(allRoutes),

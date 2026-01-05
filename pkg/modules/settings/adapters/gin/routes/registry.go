@@ -11,5 +11,8 @@ func AllRouteBindings(
 	settingHandler *handler.SettingHandler,
 	cfg *settingsconfig.Config,
 ) []sharedRoutes.Route {
-	return Admin(settingHandler, cfg)
+	var allRoutes []sharedRoutes.Route
+	allRoutes = append(allRoutes, Admin(settingHandler, cfg)...)
+	allRoutes = append(allRoutes, Public(settingHandler, cfg)...)
+	return allRoutes
 }

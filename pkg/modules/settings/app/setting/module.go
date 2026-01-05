@@ -13,15 +13,16 @@ import (
 //   - Category: 配置分类的 CRUD 操作
 type SettingUseCases struct {
 	// Setting Command Handlers
-	Create         *CreateHandler
-	Update         *UpdateHandler
-	Delete         *DeleteHandler
-	BatchUpdate    *BatchUpdateHandler
+	Create      *CreateHandler
+	Update      *UpdateHandler
+	Delete      *DeleteHandler
+	BatchUpdate *BatchUpdateHandler
 
 	// Setting Query Handlers
 	Get            *GetHandler
 	List           *ListHandler
 	ListSettings   *ListSettingsHandler
+	PublicSettings *PublicSettingsHandler
 
 	// Category Command Handlers
 	CreateCategory *CreateCategoryHandler
@@ -68,7 +69,8 @@ func newSettingUseCases(repos persistence.SettingRepositories, settingsCache Set
 		BatchUpdate:    batchUpdateHandler,
 		Get:            getHandler,
 		List:           listHandler,
-		ListSettings:   NewListSettingsHandler(repos.Query, repos.CategoryQuery, settingsCache), // 修复：传入 cache
+		ListSettings:   NewListSettingsHandler(repos.Query, repos.CategoryQuery, settingsCache),
+		PublicSettings: NewPublicSettingsHandler(repos.Query, repos.CategoryQuery, settingsCache),
 		CreateCategory: createCategoryHandler,
 		UpdateCategory: updateCategoryHandler,
 		DeleteCategory: deleteCategoryHandler,

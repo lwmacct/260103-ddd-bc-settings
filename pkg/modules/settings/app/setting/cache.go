@@ -48,6 +48,23 @@ type SettingsCacheService interface {
 	DeleteAdminSettingsAll(ctx context.Context) error
 
 	// =========================================================================
+	// 公开 Settings 操作
+	// =========================================================================
+
+	// GetPublicSettings 获取公开 Settings 缓存。
+	// Key 格式：{prefix}settings:public:{categoryKey}
+	GetPublicSettings(ctx context.Context, categoryKey string) ([]PublicSettingsCategoryDTO, error)
+
+	// SetPublicSettings 设置公开 Settings 缓存。
+	SetPublicSettings(ctx context.Context, categoryKey string, settings []PublicSettingsCategoryDTO) error
+
+	// DeletePublicSettings 删除公开的指定 category Settings 缓存。
+	DeletePublicSettings(ctx context.Context, categoryKey string) error
+
+	// DeletePublicSettingsAll 删除所有公开 Settings 缓存。
+	DeletePublicSettingsAll(ctx context.Context) error
+
+	// =========================================================================
 	// 批量失效操作
 	// =========================================================================
 

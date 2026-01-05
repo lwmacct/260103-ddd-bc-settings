@@ -273,71 +273,114 @@ func TestSetting_CoerceValue(t *testing.T) {
 // =============================================================================
 
 func TestSetting_IsVisibleAtScope(t *testing.T) {
+	// 新语义（权限等级模式）：
+	// - VisibleAt 表示"最低可见权限"
+	// - queryScope 是查询者的权限级别
+	// - 可见条件：queryScope <= VisibleAt（权限足够高才能看到）
+	// 层级顺序（权限从高到低）：system(0) < org(1) < team(2) < user(3) < public(4)
+	//
+	// 例如：
+	//   - VisibleAt="system"(0) → 只有 system 可见
+	//   - VisibleAt="user"(3)   → system/org/team/user 都可见
+	//   - VisibleAt="public"(4) → 所有人可见（包括未登录）
 	tests := []struct {
 		name        string
 		visibleAt   string
 		queryScope  ScopeLevel
 		wantVisible bool
 	}{
+		// system 级别设置：只有管理员可见
 		{
-			name:        "system visible at all scopes",
+			name:        "system setting visible to system",
+			visibleAt:   string(ScopeLevelSystem),
+			queryScope:  ScopeLevelSystem,
+			wantVisible: true, // system(0) <= system(0) ✓
+		},
+		{
+			name:        "system setting NOT visible to org",
+			visibleAt:   string(ScopeLevelSystem),
+			queryScope:  ScopeLevelOrg,
+			wantVisible: false, // org(1) > system(0) ✗
+		},
+		{
+			name:        "system setting NOT visible to user",
 			visibleAt:   string(ScopeLevelSystem),
 			queryScope:  ScopeLevelUser,
-			wantVisible: true, // user(3) >= system(0)
+			wantVisible: false, // user(3) > system(0) ✗
 		},
+
+		// org 级别设置：管理员和组织管理者可见
 		{
-			name:        "org visible at org scope",
-			visibleAt:   string(ScopeLevelOrg),
-			queryScope:  ScopeLevelOrg,
-			wantVisible: true, // org(1) >= org(1)
-		},
-		{
-			name:        "org visible at team scope",
-			visibleAt:   string(ScopeLevelOrg),
-			queryScope:  ScopeLevelTeam,
-			wantVisible: true, // team(2) >= org(1)
-		},
-		{
-			name:        "org visible at user scope",
-			visibleAt:   string(ScopeLevelOrg),
-			queryScope:  ScopeLevelUser,
-			wantVisible: true, // user(3) >= org(1)
-		},
-		{
-			name:        "org NOT visible at system scope",
+			name:        "org setting visible to system",
 			visibleAt:   string(ScopeLevelOrg),
 			queryScope:  ScopeLevelSystem,
-			wantVisible: false, // system(0) < org(1)
+			wantVisible: true, // system(0) <= org(1) ✓
 		},
 		{
-			name:        "team visible at team scope",
-			visibleAt:   string(ScopeLevelTeam),
-			queryScope:  ScopeLevelTeam,
-			wantVisible: true, // team(2) >= team(2)
-		},
-		{
-			name:        "team visible at user scope",
-			visibleAt:   string(ScopeLevelTeam),
-			queryScope:  ScopeLevelUser,
-			wantVisible: true, // user(3) >= team(2)
-		},
-		{
-			name:        "team NOT visible at org scope",
-			visibleAt:   string(ScopeLevelTeam),
+			name:        "org setting visible to org",
+			visibleAt:   string(ScopeLevelOrg),
 			queryScope:  ScopeLevelOrg,
-			wantVisible: false, // org(1) < team(2)
+			wantVisible: true, // org(1) <= org(1) ✓
 		},
 		{
-			name:        "user visible only at user scope",
+			name:        "org setting NOT visible to team",
+			visibleAt:   string(ScopeLevelOrg),
+			queryScope:  ScopeLevelTeam,
+			wantVisible: false, // team(2) > org(1) ✗
+		},
+
+		// team 级别设置：团队成员及以上可见
+		{
+			name:        "team setting visible to system",
+			visibleAt:   string(ScopeLevelTeam),
+			queryScope:  ScopeLevelSystem,
+			wantVisible: true, // system(0) <= team(2) ✓
+		},
+		{
+			name:        "team setting visible to team",
+			visibleAt:   string(ScopeLevelTeam),
+			queryScope:  ScopeLevelTeam,
+			wantVisible: true, // team(2) <= team(2) ✓
+		},
+		{
+			name:        "team setting NOT visible to user",
+			visibleAt:   string(ScopeLevelTeam),
+			queryScope:  ScopeLevelUser,
+			wantVisible: false, // user(3) > team(2) ✗
+		},
+
+		// user 级别设置：所有登录用户可见
+		{
+			name:        "user setting visible to system",
+			visibleAt:   string(ScopeLevelUser),
+			queryScope:  ScopeLevelSystem,
+			wantVisible: true, // system(0) <= user(3) ✓
+		},
+		{
+			name:        "user setting visible to user",
 			visibleAt:   string(ScopeLevelUser),
 			queryScope:  ScopeLevelUser,
-			wantVisible: true, // user(3) >= user(3)
+			wantVisible: true, // user(3) <= user(3) ✓
+		},
+
+		// public 级别设置：任何人可见
+		{
+			name:        "public setting visible to system",
+			visibleAt:   string(ScopeLevelPublic),
+			queryScope:  ScopeLevelSystem,
+			wantVisible: true, // system(0) <= public(4) ✓
 		},
 		{
-			name:        "user NOT visible at team scope",
-			visibleAt:   string(ScopeLevelUser),
-			queryScope:  ScopeLevelTeam,
-			wantVisible: false, // team(2) < user(3)
+			name:        "public setting visible to user",
+			visibleAt:   string(ScopeLevelPublic),
+			queryScope:  ScopeLevelUser,
+			wantVisible: true, // user(3) <= public(4) ✓
+		},
+		{
+			name:        "public setting visible to public",
+			visibleAt:   string(ScopeLevelPublic),
+			queryScope:  ScopeLevelPublic,
+			wantVisible: true, // public(4) <= public(4) ✓
 		},
 	}
 
@@ -638,15 +681,18 @@ func TestSetting_IsTeamDefaultForUser(t *testing.T) {
 }
 
 func TestSetting_IsVisibleToUser(t *testing.T) {
+	// 新语义：只有 VisibleAt >= user(3) 的设置才对普通用户可见
+	// 即：user 和 public 级别
 	tests := []struct {
 		name      string
 		visibleAt string
 		want      bool
 	}{
-		{"system visible to user", string(ScopeLevelSystem), true},
-		{"org visible to user", string(ScopeLevelOrg), true},
-		{"team visible to user", string(ScopeLevelTeam), true},
-		{"user visible to user", string(ScopeLevelUser), true},
+		{"system NOT visible to user", string(ScopeLevelSystem), false}, // user(3) > system(0)
+		{"org NOT visible to user", string(ScopeLevelOrg), false},       // user(3) > org(1)
+		{"team NOT visible to user", string(ScopeLevelTeam), false},     // user(3) > team(2)
+		{"user visible to user", string(ScopeLevelUser), true},          // user(3) <= user(3) ✓
+		{"public visible to user", string(ScopeLevelPublic), true},      // user(3) <= public(4) ✓
 	}
 
 	for _, tt := range tests {

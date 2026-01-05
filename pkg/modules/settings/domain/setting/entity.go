@@ -16,15 +16,17 @@ const (
 	ScopeLevelOrg    ScopeLevel = "org"
 	ScopeLevelTeam   ScopeLevel = "team"
 	ScopeLevelUser   ScopeLevel = "user"
+	ScopeLevelPublic ScopeLevel = "public"
 )
 
-// scopeLevelOrder 定义层级顺序（数值越小越底层）
-// 用于比较：order 值越大，层级越高（更接近用户）
+// scopeLevelOrder 定义层级顺序（权限从高到低）
+// 数值越小，权限越高；数值越大，可见范围越广
 var scopeLevelOrder = map[ScopeLevel]int{
-	ScopeLevelSystem: 0,
+	ScopeLevelSystem: 0, // 最高权限（仅管理员）
 	ScopeLevelOrg:    1,
 	ScopeLevelTeam:   2,
-	ScopeLevelUser:   3,
+	ScopeLevelUser:   3, // 所有登录用户
+	ScopeLevelPublic: 4, // 最广可见（包括未登录）
 }
 
 // compareScopeLevel 比较两个作用域的层级
@@ -52,11 +54,12 @@ func compareScopeLevel(a, b ScopeLevel) int {
 //   - 布尔值: true
 //   - JSON 对象/数组: {"key": "value"} 或 [1, 2, 3]
 //
-// VisibleAt 字段决定配置的最小可见级别（从此级别向下可见）：
-//   - "system": 系统级，所有级别可见
-//   - "org": 组织级，Org/Team/User 可见
-//   - "team": 团队级，Team/User 可见
-//   - "user": 用户级，只有 User 可见
+// VisibleAt 字段决定配置的可见权限级别（权限从高到低）：
+//   - "system": 仅管理员可见（敏感配置：SMTP、OAuth）
+//   - "org": 组织管理者及以上可见
+//   - "team": 团队管理者及以上可见
+//   - "user": 所有登录用户可见
+//   - "public": 任何人可见（包括未登录）
 //
 // ConfigurableAt 字段决定配置的最大可配置级别（到此级别为止可配置）：
 //   - "system": 只有系统管理员可配置
@@ -65,10 +68,10 @@ func compareScopeLevel(a, b ScopeLevel) int {
 //   - "user": 所有人可配置
 //
 // 场景示例：
-//   - VisibleAt="org", ConfigurableAt="org": Org 专用，Team 可见只读
-//   - VisibleAt="org", ConfigurableAt="team": Org 可配置，Team 可覆盖
-//   - VisibleAt="user", ConfigurableAt="team": User 可见，Team 可为 User 设置默认值
-//   - VisibleAt="user", ConfigurableAt="user": User 专用，只有 User 可配置
+//   - VisibleAt="system", ConfigurableAt="system": 敏感配置，仅管理员可见可改
+//   - VisibleAt="user", ConfigurableAt="system": 所有用户可见，仅管理员可改
+//   - VisibleAt="public", ConfigurableAt="system": 公开可见（如站点名称），仅管理员可改
+//   - VisibleAt="user", ConfigurableAt="user": 用户可见可改
 //
 // InputType 决定前端控件类型和后端自动校验规则（email/url/password 等）。
 // Validation 存储自定义 JSON Logic 规则，用于业务级增强校验。
@@ -77,7 +80,7 @@ type Setting struct {
 	ID             uint   // 唯一标识
 	Key            string // 配置键，唯一约束
 	DefaultValue   any    // 默认值（JSONB 原生值）
-	VisibleAt      string // 最小可见级别：system | org | team | user
+	VisibleAt      string // 可见权限级别：system | org | team | user | public
 	ConfigurableAt string // 最大可配置级别：system | org | team | user
 	CategoryID     uint   // 外键关联 SettingCategory.ID
 	Group          string // 分组显示标签：基本设置, 本地化 等（直接存 label，空字符串表示无分组）
@@ -191,7 +194,8 @@ func (s *Setting) IsValidValueType() bool {
 // IsValidVisibleAt 报告 VisibleAt 是否有效。
 func (s *Setting) IsValidVisibleAt() bool {
 	switch s.VisibleAt {
-	case string(ScopeLevelSystem), string(ScopeLevelOrg), string(ScopeLevelTeam), string(ScopeLevelUser):
+	case string(ScopeLevelSystem), string(ScopeLevelOrg), string(ScopeLevelTeam),
+		string(ScopeLevelUser), string(ScopeLevelPublic):
 		return true
 	default:
 		return false
@@ -199,6 +203,7 @@ func (s *Setting) IsValidVisibleAt() bool {
 }
 
 // IsValidConfigurableAt 报告 ConfigurableAt 是否有效。
+// ConfigurableAt 不允许 public（public 用户无法配置）。
 func (s *Setting) IsValidConfigurableAt() bool {
 	switch s.ConfigurableAt {
 	case string(ScopeLevelSystem), string(ScopeLevelOrg), string(ScopeLevelTeam), string(ScopeLevelUser):
@@ -212,10 +217,16 @@ func (s *Setting) IsValidConfigurableAt() bool {
 // 可见性和可配置性方法
 // =============================================================================
 
-// IsVisibleAtScope 报告设置在指定级别是否可见。
-// 可见条件：查询级别的层级 >= VisibleAt 的层级
+// IsVisibleAtScope 报告设置在指定权限级别是否可见。
+// 可见条件：查询级别的权限 <= VisibleAt 的权限级别
+// （权限越高数值越小，所以用 <=）
+//
+// 例如：
+//   - VisibleAt=system (0)：只有 system (0) 可见
+//   - VisibleAt=user (3)：system/org/team/user 都可见
+//   - VisibleAt=public (4)：所有人可见（包括未登录）
 func (s *Setting) IsVisibleAtScope(scope ScopeLevel) bool {
-	return compareScopeLevel(scope, ScopeLevel(s.VisibleAt)) >= 0
+	return compareScopeLevel(scope, ScopeLevel(s.VisibleAt)) <= 0
 }
 
 // IsConfigurableAtScope 报告设置在指定级别是否可配置。
@@ -228,24 +239,35 @@ func (s *Setting) IsConfigurableAtScope(scope ScopeLevel) bool {
 	return compareScopeLevel(scope, ScopeLevel(s.ConfigurableAt)) <= 0
 }
 
-// IsSystemLevel 报告是否为系统级别设置（最小可见级别为 system）。
+// IsSystemLevel 报告是否为系统级别设置（仅管理员可见）。
 func (s *Setting) IsSystemLevel() bool {
 	return s.VisibleAt == string(ScopeLevelSystem)
 }
 
-// IsOrgLevel 报告是否为组织级别设置（最小可见级别为 org）。
+// IsOrgLevel 报告是否为组织级别设置（组织管理者及以上可见）。
 func (s *Setting) IsOrgLevel() bool {
 	return s.VisibleAt == string(ScopeLevelOrg)
 }
 
-// IsTeamLevel 报告是否为团队级别设置（最小可见级别为 team）。
+// IsTeamLevel 报告是否为团队级别设置（团队管理者及以上可见）。
 func (s *Setting) IsTeamLevel() bool {
 	return s.VisibleAt == string(ScopeLevelTeam)
 }
 
-// IsUserLevel 报告是否为用户级别设置（最小可见级别为 user）。
+// IsUserLevel 报告是否为用户级别设置（所有登录用户可见）。
 func (s *Setting) IsUserLevel() bool {
 	return s.VisibleAt == string(ScopeLevelUser)
+}
+
+// IsPublicLevel 报告是否为公开级别设置（任何人可见，包括未登录）。
+func (s *Setting) IsPublicLevel() bool {
+	return s.VisibleAt == string(ScopeLevelPublic)
+}
+
+// IsPublic 报告是否为公开设置。
+// 与 IsPublicLevel 相同，提供更直观的方法名。
+func (s *Setting) IsPublic() bool {
+	return s.IsPublicLevel()
 }
 
 // IsVisibleToUser 报告普通用户是否可见此配置。

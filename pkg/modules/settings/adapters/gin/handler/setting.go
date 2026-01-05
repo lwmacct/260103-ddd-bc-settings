@@ -21,9 +21,10 @@ type SettingHandler struct {
 	batchUpdateHandler *setting.BatchUpdateHandler
 
 	// Setting Query Handlers
-	getHandler        *setting.GetHandler
-	listHandler       *setting.ListHandler
-	listSchemaHandler *setting.ListSettingsHandler
+	getHandler            *setting.GetHandler
+	listHandler           *setting.ListHandler
+	listSchemaHandler     *setting.ListSettingsHandler
+	publicSettingsHandler *setting.PublicSettingsHandler
 
 	// Category Command Handlers
 	createCategoryHandler *setting.CreateCategoryHandler
@@ -45,6 +46,7 @@ func NewSettingHandler(useCases *setting.SettingUseCases) *SettingHandler {
 		getHandler:            useCases.Get,
 		listHandler:           useCases.List,
 		listSchemaHandler:     useCases.ListSettings,
+		publicSettingsHandler: useCases.PublicSettings,
 		createCategoryHandler: useCases.CreateCategory,
 		updateCategoryHandler: useCases.UpdateCategory,
 		deleteCategoryHandler: useCases.DeleteCategory,
@@ -551,4 +553,55 @@ func (h *SettingHandler) DeleteCategory(c *gin.Context) {
 	}
 
 	response.NoContent(c)
+}
+
+// =============================================================================
+// Public API
+// =============================================================================
+
+// PublicSettingsQuery 公开配置查询参数
+type PublicSettingsQuery struct {
+	Category string `form:"category"`
+}
+
+// GetPublicSettings 获取公开配置（无需认证）
+//
+//	@Summary		公开配置列表
+//	@Description	获取公开可见的配置数据（VisibleAt="public"），用于前端展示站点信息等。无需认证。
+//	@Tags			public
+//	@Accept			json
+//	@Produce		json
+//	@Param			params	query		handler.PublicSettingsQuery	false	"查询参数"
+//	@Success		200		{object}	response.DataResponse[[]setting.PublicSettingsCategoryDTO]	"公开配置列表"
+//	@Failure		404		{object}	response.ErrorResponse	"分类不存在"
+//	@Failure		500		{object}	response.ErrorResponse	"服务器内部错误"
+//	@Router			/api/public/settings [get]
+func (h *SettingHandler) GetPublicSettings(c *gin.Context) {
+	var query PublicSettingsQuery
+	if err := c.ShouldBindQuery(&query); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	// 检查 Handler 是否为 nil
+	if h.publicSettingsHandler == nil {
+		response.InternalError(c, "Public settings handler not initialized")
+		return
+	}
+
+	// 调用 PublicSettingsHandler
+	result, err := h.publicSettingsHandler.Handle(c.Request.Context(), setting.PublicSettingsQuery{
+		CategoryKey: query.Category,
+	})
+	if err != nil {
+		// 检查是否为分类不存在错误
+		if query.Category != "" && err.Error() == "category not found: "+query.Category {
+			response.NotFoundMessage(c, err.Error())
+			return
+		}
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.OK(c, result)
 }

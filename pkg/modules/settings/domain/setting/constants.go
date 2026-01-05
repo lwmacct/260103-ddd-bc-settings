@@ -5,14 +5,16 @@ package setting
 // ============================================================================
 
 const (
-	// ScopeSystem 系统设置，全局唯一，管理员直接修改 DefaultValue
+	// ScopeSystem 系统设置，仅管理员可见（如 SMTP、OAuth 配置）
 	ScopeSystem = "system"
-	// ScopeOrg 组织设置，Org 可配置，Team 继承但不可覆盖
+	// ScopeOrg 组织设置，组织管理者及以上可见
 	ScopeOrg = "org"
-	// ScopeTeam 团队设置，Team 可配置，可继承 Org 设置
+	// ScopeTeam 团队设置，团队成员可见
 	ScopeTeam = "team"
-	// ScopeUser 用户设置，DefaultValue 作为初始值，用户可覆盖
+	// ScopeUser 用户设置，所有登录用户可见
 	ScopeUser = "user"
+	// ScopePublic 公开设置，任何人可见（包括未登录）
+	ScopePublic = "public"
 )
 
 // ============================================================================

@@ -92,7 +92,7 @@ func (s *SettingSeeder) buildDefinitions(categoryIDs map[string]uint) []persiste
 			DefaultValue:   datatypes.JSON(`""`),
 			CategoryID:     categoryIDs["general"],
 			Group:          "基本设置",
-			VisibleAt:      "system",
+			VisibleAt:      "public",
 			ConfigurableAt: "system",
 			ValueType:      "string",
 			Label:          "站点名称",

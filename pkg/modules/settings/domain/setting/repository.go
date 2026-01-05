@@ -45,6 +45,10 @@ type QueryRepository interface {
 	// 可见条件：VisibleAt <= user
 	FindVisibleToUser(ctx context.Context) ([]*Setting, error)
 
+	// FindPublic 查找公开设置（VisibleAt = "public"）
+	// 用于公开 API，无需认证即可访问
+	FindPublic(ctx context.Context) ([]*Setting, error)
+
 	// FindAll 查找所有配置定义
 	FindAll(ctx context.Context) ([]*Setting, error)
 

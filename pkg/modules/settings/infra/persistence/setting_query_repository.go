@@ -95,6 +95,20 @@ func (r *settingQueryRepository) FindVisibleToUser(ctx context.Context) ([]*sett
 	return toSettingEntities(models), nil
 }
 
+// FindPublic 查找公开设置（VisibleAt = "public"）
+// 用于公开 API，无需认证即可访问
+func (r *settingQueryRepository) FindPublic(ctx context.Context) ([]*setting.Setting, error) {
+	var models []SettingModel
+	err := r.db.WithContext(ctx).
+		Where("visible_at = ?", string(setting.ScopeLevelPublic)).
+		Order(`category_id ASC, "group" ASC, "order" ASC, key ASC`).
+		Find(&models).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to find public settings: %w", err)
+	}
+	return toSettingEntities(models), nil
+}
+
 // FindAll 查找所有配置定义
 func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Setting, error) {
 	var models []SettingModel

@@ -20,6 +20,7 @@ const (
 	settingsKeyPrefix        = "settings:"
 	settingsUserPrefix       = "user:"
 	settingsAdminPrefix      = "admin:"
+	settingsPublicPrefix     = "public:"
 	settingsCategoryAll      = "_all"
 	settingsCategoriesPrefix = "categories:"
 	scanBatchSize            = 100
@@ -100,6 +101,34 @@ func (s *settingsCacheService) DeleteAdminSettings(ctx context.Context, category
 // DeleteAdminSettingsAll 删除管理员的所有 Settings 缓存。
 func (s *settingsCacheService) DeleteAdminSettingsAll(ctx context.Context) error {
 	pattern := s.keyPrefix + settingsKeyPrefix + settingsAdminPrefix + "*"
+	return s.deleteByPattern(ctx, pattern)
+}
+
+// =========================================================================
+// 公开 Settings 操作
+// =========================================================================
+
+// GetPublicSettings 获取公开 Settings 缓存。
+func (s *settingsCacheService) GetPublicSettings(ctx context.Context, categoryKey string) ([]setting.PublicSettingsCategoryDTO, error) {
+	key := s.buildPublicKey(categoryKey)
+	return s.getPublic(ctx, key)
+}
+
+// SetPublicSettings 设置公开 Settings 缓存。
+func (s *settingsCacheService) SetPublicSettings(ctx context.Context, categoryKey string, settings []setting.PublicSettingsCategoryDTO) error {
+	key := s.buildPublicKey(categoryKey)
+	return s.setPublic(ctx, key, settings)
+}
+
+// DeletePublicSettings 删除公开的指定 category Settings 缓存。
+func (s *settingsCacheService) DeletePublicSettings(ctx context.Context, categoryKey string) error {
+	key := s.buildPublicKey(categoryKey)
+	return s.client.Del(ctx, key).Err()
+}
+
+// DeletePublicSettingsAll 删除所有公开 Settings 缓存。
+func (s *settingsCacheService) DeletePublicSettingsAll(ctx context.Context) error {
+	pattern := s.keyPrefix + settingsKeyPrefix + settingsPublicPrefix + "*"
 	return s.deleteByPattern(ctx, pattern)
 }
 
@@ -250,6 +279,14 @@ func (s *settingsCacheService) buildAdminKey(categoryKey string) string {
 	return s.keyPrefix + settingsKeyPrefix + settingsAdminPrefix + categoryKey
 }
 
+// buildPublicKey 构建公开 Settings 缓存 key。
+func (s *settingsCacheService) buildPublicKey(categoryKey string) string {
+	if categoryKey == "" {
+		categoryKey = settingsCategoryAll
+	}
+	return s.keyPrefix + settingsKeyPrefix + settingsPublicPrefix + categoryKey
+}
+
 // buildCategoriesKey 构建分类列表缓存 key。
 func (s *settingsCacheService) buildCategoriesKey(scope string) string {
 	return s.keyPrefix + settingsKeyPrefix + settingsCategoriesPrefix + scope
@@ -338,6 +375,45 @@ func (s *settingsCacheService) setCategories(ctx context.Context, key string, ca
 	_, err := pipe.Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to set categories cache: %w", err)
+	}
+
+	return nil
+}
+
+// getPublic 获取公开 Settings 缓存（使用 RedisJSON）。
+func (s *settingsCacheService) getPublic(ctx context.Context, key string) ([]setting.PublicSettingsCategoryDTO, error) {
+	data, err := s.client.JSONGet(ctx, key, "$").Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil // cache miss
+		}
+		return nil, fmt.Errorf("redis json get error: %w", err)
+	}
+
+	// JSON.GET $ 返回数组包装：[actual_data]
+	var wrapper [][]setting.PublicSettingsCategoryDTO
+	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
+		_ = s.client.Del(ctx, key)
+		slog.Warn("corrupted public settings cache, deleted", "key", key, "error", err.Error())
+		return nil, nil
+	}
+
+	if len(wrapper) == 0 || len(wrapper[0]) == 0 {
+		return nil, nil
+	}
+
+	return wrapper[0], nil
+}
+
+// setPublic 设置公开 Settings 缓存（使用 RedisJSON）。
+func (s *settingsCacheService) setPublic(ctx context.Context, key string, settings []setting.PublicSettingsCategoryDTO) error {
+	pipe := s.client.Pipeline()
+	pipe.JSONSet(ctx, key, "$", settings)
+	pipe.Expire(ctx, key, settingsCacheTTL)
+
+	_, err := pipe.Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to set public settings cache: %w", err)
 	}
 
 	return nil

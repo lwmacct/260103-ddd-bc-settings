@@ -687,6 +687,48 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/public/settings": {
+            "get": {
+                "description": "获取公开可见的配置数据（VisibleAt=\"public\"），用于前端展示站点信息等。无需认证。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "公开配置列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "公开配置列表",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse-array_setting_PublicSettingsCategoryDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -837,6 +879,29 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DataResponse-array_setting_PublicSettingsCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP 状态码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "响应数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.PublicSettingsCategoryDTO"
+                    }
+                },
+                "error": {
+                    "description": "错误详情（仅失败时）"
+                },
+                "message": {
+                    "description": "消息描述",
+                    "type": "string"
+                }
+            }
+        },
         "response.DataResponse-array_setting_SettingsCategoryDTO": {
             "type": "object",
             "properties": {
@@ -973,6 +1038,49 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {}
+            }
+        },
+        "setting.PublicSettingItemDTO": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
+        "setting.PublicSettingsCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.PublicSettingsGroupDTO"
+                    }
+                },
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "setting.PublicSettingsGroupDTO": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/setting.PublicSettingItemDTO"
+                    }
+                }
             }
         },
         "setting.SelectOptionDTO": {

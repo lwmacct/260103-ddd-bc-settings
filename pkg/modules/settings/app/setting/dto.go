@@ -108,6 +108,28 @@ type SettingsCategoryDTO struct {
 	Groups   []SettingsGroupDTO `json:"groups"`
 }
 
+// ==================== Public Settings DTO ====================
+
+// PublicSettingItemDTO 公开设置项 DTO（精简版，不含敏感字段）
+type PublicSettingItemDTO struct {
+	Key   string `json:"key"`
+	Value any    `json:"value"`
+	Label string `json:"label"`
+}
+
+// PublicSettingsGroupDTO 公开设置分组
+type PublicSettingsGroupDTO struct {
+	Name     string                 `json:"name"`
+	Settings []PublicSettingItemDTO `json:"settings"`
+}
+
+// PublicSettingsCategoryDTO 公开设置分类
+type PublicSettingsCategoryDTO struct {
+	Category string                   `json:"category"`
+	Label    string                   `json:"label"`
+	Groups   []PublicSettingsGroupDTO `json:"groups"`
+}
+
 // ==================== 分组聚合 DTO ====================
 
 // SettingGroupDTO 按分组聚合的配置列表
