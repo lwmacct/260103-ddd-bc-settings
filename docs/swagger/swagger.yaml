@@ -1,0 +1,758 @@
+basePath: /
+definitions:
+  handler.BatchUpdateSettingsRequest:
+    properties:
+      settings:
+        description: 至少需要一个设置项
+        items:
+          properties:
+            key:
+              type: string
+            value:
+              description: JSONB 原生值
+          required:
+          - key
+          type: object
+        minItems: 1
+        type: array
+    required:
+    - settings
+    type: object
+  handler.CreateCategoryRequest:
+    properties:
+      icon:
+        example: mdi-cog
+        type: string
+      key:
+        example: custom
+        type: string
+      label:
+        example: 自定义配置
+        type: string
+      order:
+        example: 100
+        type: integer
+    required:
+    - key
+    - label
+    type: object
+  handler.CreateSettingRequest:
+    properties:
+      category_id:
+        example: 1
+        type: integer
+      default_value: {}
+      group:
+        example: basic
+        type: string
+      key:
+        example: site_name
+        type: string
+      label:
+        example: 网站名称
+        type: string
+      order:
+        example: 0
+        type: integer
+      ui_config:
+        example: '{}'
+        type: string
+      value_type:
+        example: string
+        type: string
+    required:
+    - category_id
+    - default_value
+    - key
+    type: object
+  handler.UpdateCategoryRequest:
+    properties:
+      icon:
+        example: mdi-settings
+        type: string
+      label:
+        example: 更新后的标签
+        type: string
+      order:
+        example: 50
+        type: integer
+    type: object
+  handler.UpdateSettingRequest:
+    properties:
+      default_value: {}
+      label:
+        example: 更新后的标签
+        type: string
+      order:
+        type: integer
+      ui_config:
+        type: string
+    type: object
+  response.DataResponse-array_setting_CategoryDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/setting.CategoryDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-array_setting_SettingsCategoryDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        description: 响应数据
+        items:
+          $ref: '#/definitions/setting.SettingsCategoryDTO'
+        type: array
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-setting_CategoryDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/setting.CategoryDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.DataResponse-setting_SettingDTO:
+    properties:
+      code:
+        description: HTTP 状态码
+        type: integer
+      data:
+        allOf:
+        - $ref: '#/definitions/setting.SettingDTO'
+        description: 响应数据
+      error:
+        description: 错误详情（仅失败时）
+      message:
+        description: 消息描述
+        type: string
+    type: object
+  response.EmptyResponse:
+    description: 空响应格式
+    type: object
+  response.ErrorDetail:
+    properties:
+      code:
+        description: 业务错误码（小写下划线）
+        type: string
+      details:
+        description: 额外详情（如验证错误列表）
+      message:
+        description: 错误消息
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/response.ErrorDetail'
+    type: object
+  setting.CategoryDTO:
+    properties:
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  setting.DependsOnConfigDTO:
+    properties:
+      key:
+        type: string
+      operator:
+        description: eq, ne, gt, lt（默认 eq）
+        type: string
+      value: {}
+    type: object
+  setting.SelectOptionDTO:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
+    type: object
+  setting.SettingDTO:
+    properties:
+      category_id:
+        type: integer
+      configurable_at:
+        description: 最大可配置级别：system | org | team | user
+        type: string
+      created_at:
+        type: string
+      default_value:
+        description: JSONB 原生值
+      group:
+        type: string
+      id:
+        type: integer
+      input_type:
+        description: 控件类型
+        type: string
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      ui_config:
+        allOf:
+        - $ref: '#/definitions/setting.UIConfigDTO'
+        description: hint/options/depends_on
+      updated_at:
+        type: string
+      validation:
+        description: JSON Logic 规则
+      value_type:
+        type: string
+      visible_at:
+        description: 最小可见级别：system | org | team | user
+        type: string
+    type: object
+  setting.SettingsCategoryDTO:
+    properties:
+      category:
+        type: string
+      groups:
+        items:
+          $ref: '#/definitions/setting.SettingsGroupDTO'
+        type: array
+      icon:
+        type: string
+      label:
+        type: string
+    type: object
+  setting.SettingsGroupDTO:
+    properties:
+      name:
+        description: 分组名称（如 "基本设置"）
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/setting.SettingsItemDTO'
+        type: array
+    type: object
+  setting.SettingsItemDTO:
+    properties:
+      configurable_at:
+        description: 最大可配置级别
+        type: string
+      default_value:
+        description: 系统默认值
+      input_type:
+        description: 控件类型
+        type: string
+      is_customized:
+        description: 是否用户自定义
+        type: boolean
+      key:
+        type: string
+      label:
+        type: string
+      order:
+        type: integer
+      ui_config:
+        allOf:
+        - $ref: '#/definitions/setting.UIConfigDTO'
+        description: hint/options/depends_on
+      validation:
+        description: JSON Logic 规则
+      value:
+        description: 实际生效值
+      value_type:
+        type: string
+      visible_at:
+        description: 最小可见级别
+        type: string
+    type: object
+  setting.UIConfigDTO:
+    properties:
+      depends_on:
+        allOf:
+        - $ref: '#/definitions/setting.DependsOnConfigDTO'
+        description: 依赖关系
+      hint:
+        description: 输入提示
+        type: string
+      options:
+        description: 下拉选项
+        items:
+          $ref: '#/definitions/setting.SelectOptionDTO'
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: API Support
+    url: https://github.com/lwmacct/260103-ddd-bc-settings
+  description: 基于 DDD + CQRS 架构的配置管理模块
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Settings Bounded Context API
+  version: "1.0"
+paths:
+  /api/admin/settings:
+    get:
+      consumes:
+      - application/json
+      description: 获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+      parameters:
+      - in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置列表（层级结构）
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 分类不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 配置列表
+      tags:
+      - settings
+    post:
+      consumes:
+      - application/json
+      description: 管理员创建新的系统配置项
+      parameters:
+      - description: 配置信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 配置创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_SettingDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建配置
+      tags:
+      - settings
+  /api/admin/settings/{key}:
+    delete:
+      consumes:
+      - application/json
+      description: 管理员删除指定的系统配置项
+      parameters:
+      - description: 配置键
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: 配置删除成功
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 配置不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除配置
+      tags:
+      - settings
+    get:
+      consumes:
+      - application/json
+      description: 根据配置键获取配置详情
+      parameters:
+      - description: 配置键
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_SettingDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 配置不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 配置详情
+      tags:
+      - settings
+    put:
+      consumes:
+      - application/json
+      description: 管理员更新指定配置项的值和标签
+      parameters:
+      - description: 配置键
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_SettingDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 配置不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新配置
+      tags:
+      - settings
+  /api/admin/settings/batch:
+    post:
+      consumes:
+      - application/json
+      description: 管理员批量更新多个系统配置项的值
+      parameters:
+      - description: 配置列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.BatchUpdateSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 批量更新成功
+          schema:
+            $ref: '#/definitions/response.EmptyResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 批量更新配置
+      tags:
+      - settings
+  /api/admin/settings/categories:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有配置分类，按排序权重升序排列
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分类列表
+          schema:
+            $ref: '#/definitions/response.DataResponse-array_setting_CategoryDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 配置分类列表
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: 管理员创建新的配置分类
+      parameters:
+      - description: 分类信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 分类创建成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_CategoryDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建配置分类
+      tags:
+      - categories
+  /api/admin/settings/categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 管理员删除指定的配置分类（如有关联配置项则拒绝删除）
+      parameters:
+      - description: 分类 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: 分类删除成功
+        "400":
+          description: 存在关联配置项
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 分类不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除配置分类
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: 根据 ID 获取配置分类详情
+      parameters:
+      - description: 分类 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分类详情
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_CategoryDTO'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 分类不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 配置分类详情
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: 管理员更新指定配置分类的信息（Key 不可修改）
+      parameters:
+      - description: 分类 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分类更新成功
+          schema:
+            $ref: '#/definitions/response.DataResponse-setting_CategoryDTO'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: 分类不存在
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新配置分类
+      tags:
+      - categories
+securityDefinitions:
+  BearerAuth:
+    description: Bearer token authentication
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

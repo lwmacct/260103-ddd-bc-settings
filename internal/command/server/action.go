@@ -22,7 +22,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	// Swagger docs - 空白导入触发 docs.go 的 init() 函数
-	_ "github.com/lwmacct/260103-ddd-bc-settings/internal/command/server/docs"
+	_ "github.com/lwmacct/260103-ddd-bc-settings/docs/swagger"
 )
 
 // action 启动 HTTP 服务器。

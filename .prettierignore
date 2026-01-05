@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+.output/
+.vitepress/dist/
+.vitepress/cache/
+
+# Compiled files
+*.min.js
+*.min.css
+
+# Generated files
+coverage/
+.nyc_output/
+internal/adapters/http/docs/
+docs/swagger/
+src/generated/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+*.swp
+*.swo
+
+# Go
+*.exe
+*.test
+*.out
+bin/
+
+# Misc
+.env
+.env.local
+*.lock
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# web
+*.d.ts
+
+config/*.yaml
