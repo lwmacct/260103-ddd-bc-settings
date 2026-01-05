@@ -53,15 +53,15 @@ func registerRoutes(r *gin.Engine, settingHandler *handler.SettingHandler) {
 	for _, route := range allRoutes {
 		switch route.Method {
 		case routes.GET:
-			r.GET(route.Path, route.Handler)
+			r.GET(route.Path, route.Handlers...)
 		case routes.POST:
-			r.POST(route.Path, route.Handler)
+			r.POST(route.Path, route.Handlers...)
 		case routes.PUT:
-			r.PUT(route.Path, route.Handler)
+			r.PUT(route.Path, route.Handlers...)
 		case routes.DELETE:
-			r.DELETE(route.Path, route.Handler)
+			r.DELETE(route.Path, route.Handlers...)
 		case routes.PATCH:
-			r.PATCH(route.Path, route.Handler)
+			r.PATCH(route.Path, route.Handlers...)
 		}
 	}
 }
