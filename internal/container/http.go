@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	ginroutes "github.com/lwmacct/260101-go-pkg-gin/pkg/routes"
 	"go.uber.org/fx"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
 	settingsroutes "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/routes"
+	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
 )
 
 // HTTPModule 提供 HTTP 处理器和路由注册。
@@ -52,15 +52,15 @@ func registerRoutes(r *gin.Engine, settingHandler *handler.SettingHandler) {
 	// 注册路由到 Gin Engine
 	for _, route := range allRoutes {
 		switch route.Method {
-		case ginroutes.GET:
+		case routes.GET:
 			r.GET(route.Path, route.Handler)
-		case ginroutes.POST:
+		case routes.POST:
 			r.POST(route.Path, route.Handler)
-		case ginroutes.PUT:
+		case routes.PUT:
 			r.PUT(route.Path, route.Handler)
-		case ginroutes.DELETE:
+		case routes.DELETE:
 			r.DELETE(route.Path, route.Handler)
-		case ginroutes.PATCH:
+		case routes.PATCH:
 			r.PATCH(route.Path, route.Handler)
 		}
 	}

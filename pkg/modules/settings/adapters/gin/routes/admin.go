@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/lwmacct/260101-go-pkg-gin/pkg/routes"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
+	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
 )
 
 // Admin Settings 模块管理员路由。

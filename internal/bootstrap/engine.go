@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"github.com/lwmacct/260101-go-pkg-gin/pkg/middleware"
+	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/middleware"
 )
 
 func init() {
