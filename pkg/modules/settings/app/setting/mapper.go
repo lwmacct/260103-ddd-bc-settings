@@ -229,11 +229,6 @@ func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting) *Setting
 	return dto
 }
 
-// extractValidationRule 从 Setting.Validation 字段获取验证规则（用于 JSON Logic 验证器）
-func extractValidationRule(validation string) string {
-	return validation
-}
-
 // toCategoryMetaDTOs 将 SettingCategory 实体列表转换为 CategoryMetaDTO 列表。
 func toCategoryMetaDTOs(categories []*setting.SettingCategory) []CategoryMetaDTO {
 	result := make([]CategoryMetaDTO, 0, len(categories))

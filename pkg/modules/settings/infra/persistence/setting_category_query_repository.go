@@ -48,7 +48,7 @@ func (r *settingCategoryQueryRepository) FindAll(ctx context.Context) ([]*settin
 	if err := r.db.WithContext(ctx).Order("sort_order ASC").Find(&models).Error; err != nil {
 		return nil, err
 	}
-	return mapSettingCategoryModelsToEntities(models), nil
+	return toCategoryEntities(models), nil
 }
 
 // FindByIDs 根据 ID 列表批量查询分类，按 Order 升序排列
@@ -60,7 +60,7 @@ func (r *settingCategoryQueryRepository) FindByIDs(ctx context.Context, ids []ui
 	if err := r.db.WithContext(ctx).Where("id IN ?", ids).Order("sort_order ASC").Find(&models).Error; err != nil {
 		return nil, err
 	}
-	return mapSettingCategoryModelsToEntities(models), nil
+	return toCategoryEntities(models), nil
 }
 
 // ExistsByKey 检查指定 Key 是否已存在

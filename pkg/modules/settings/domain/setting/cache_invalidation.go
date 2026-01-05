@@ -5,7 +5,8 @@ import "context"
 // CacheInvalidator 缓存失效器接口（Domain 层定义）。
 //
 // 用于 Infrastructure 层在写操作后通知缓存失效。
-// 这是一个简化接口，只包含失效方法，不涉及具体的缓存实现。
+// 这是一个技术接口，定义在 Domain 层以避免循环依赖。
+// Infrastructure 层的缓存服务实现此接口。
 type CacheInvalidator interface {
 	// DeleteAll 删除所有缓存
 	DeleteAll(ctx context.Context) error

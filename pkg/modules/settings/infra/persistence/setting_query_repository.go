@@ -42,7 +42,7 @@ func (r *settingQueryRepository) FindByKeys(ctx context.Context, keys []string) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to find setting definitions by keys: %w", err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // FindByCategoryID 根据分类 ID 查找配置定义列表
@@ -55,7 +55,7 @@ func (r *settingQueryRepository) FindByCategoryID(ctx context.Context, categoryI
 	if err != nil {
 		return nil, fmt.Errorf("failed to find setting definitions by category ID: %w", err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // FindByScope 根据作用域查找配置定义列表
@@ -72,7 +72,7 @@ func (r *settingQueryRepository) FindByScope(ctx context.Context, scope string) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to find setting definitions by scope: %w", err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // FindVisibleToUser 查找普通用户可见的配置定义
@@ -92,7 +92,7 @@ func (r *settingQueryRepository) FindVisibleToUser(ctx context.Context) ([]*sett
 	if err != nil {
 		return nil, fmt.Errorf("failed to find settings visible to user: %w", err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // FindAll 查找所有配置定义
@@ -104,7 +104,7 @@ func (r *settingQueryRepository) FindAll(ctx context.Context) ([]*setting.Settin
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all setting definitions: %w", err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // ExistsByKey 检查 Key 是否已存在
@@ -134,7 +134,7 @@ func (r *settingQueryRepository) FindByVisibleAt(ctx context.Context, visibleAt 
 	if err != nil {
 		return nil, fmt.Errorf("failed to find settings visible at %s: %w", visibleAt, err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // FindByConfigurableAt 查询指定级别可配置的设置
@@ -149,7 +149,7 @@ func (r *settingQueryRepository) FindByConfigurableAt(ctx context.Context, confi
 	if err != nil {
 		return nil, fmt.Errorf("failed to find settings configurable at %s: %w", configurableAt, err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }
 
 // FindByVisibleAndConfigurable 查询同时满足可见性和可配置性的设置
@@ -166,5 +166,5 @@ func (r *settingQueryRepository) FindByVisibleAndConfigurable(
 	if err != nil {
 		return nil, fmt.Errorf("failed to find settings: %w", err)
 	}
-	return mapSettingModelsToEntities(models), nil
+	return toSettingEntities(models), nil
 }

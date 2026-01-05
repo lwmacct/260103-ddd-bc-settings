@@ -80,17 +80,3 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 
 	return ToSettingDTO(def), nil
 }
-
-// getAllSettingsMap 获取所有配置的 key -> value 映射
-func (h *UpdateHandler) getAllSettingsMap(ctx context.Context) (map[string]any, error) {
-	defs, err := h.queryRepo.FindAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make(map[string]any, len(defs))
-	for _, d := range defs {
-		result[d.Key] = d.DefaultValue // 直接使用 any 类型
-	}
-	return result, nil
-}

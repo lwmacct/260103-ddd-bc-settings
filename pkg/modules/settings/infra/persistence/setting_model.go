@@ -46,7 +46,8 @@ func (SettingModel) TableName() string {
 	return "settings"
 }
 
-func newSettingModelFromEntity(entity *setting.Setting) *SettingModel {
+// toSettingModel 将 Domain Entity 转换为 GORM Model
+func toSettingModel(entity *setting.Setting) *SettingModel {
 	if entity == nil {
 		return nil
 	}
@@ -102,7 +103,8 @@ func (m *SettingModel) ToEntity() *setting.Setting {
 	}
 }
 
-func mapSettingModelsToEntities(models []SettingModel) []*setting.Setting {
+// toSettingEntities 将 GORM Model 切片转换为 Domain Entity 切片
+func toSettingEntities(models []SettingModel) []*setting.Setting {
 	if len(models) == 0 {
 		return nil
 	}

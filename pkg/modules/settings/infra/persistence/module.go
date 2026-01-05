@@ -26,7 +26,7 @@ var RepositoryModule = fx.Module("settings.repository",
 //   - Command 操作：执行写操作后异步失效相关缓存
 //
 // 参数 cacheInvalidator 需要实现 settingdomain.CacheInvalidator 接口，
-// 通常由 Application 层的 SettingsCacheService 实现。
+// 通常由 Infrastructure 层的 SettingsCacheService 实现。
 func newSettingRepositoriesWithCache(
 	db *gorm.DB,
 	cacheInvalidator settingdomain.CacheInvalidator,

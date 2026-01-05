@@ -25,7 +25,8 @@ func (SettingCategoryModel) TableName() string {
 	return "setting_categories"
 }
 
-func newSettingCategoryModelFromEntity(entity *setting.SettingCategory) *SettingCategoryModel {
+// toCategoryModel 将 Domain Entity 转换为 GORM Model
+func toCategoryModel(entity *setting.SettingCategory) *SettingCategoryModel {
 	if entity == nil {
 		return nil
 	}
@@ -58,7 +59,8 @@ func (m *SettingCategoryModel) ToEntity() *setting.SettingCategory {
 	}
 }
 
-func mapSettingCategoryModelsToEntities(models []SettingCategoryModel) []*setting.SettingCategory {
+// toCategoryEntities 将 GORM Model 切片转换为 Domain Entity 切片
+func toCategoryEntities(models []SettingCategoryModel) []*setting.SettingCategory {
 	if len(models) == 0 {
 		return nil
 	}

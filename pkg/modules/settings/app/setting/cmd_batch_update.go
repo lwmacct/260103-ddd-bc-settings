@@ -65,12 +65,7 @@ func (h *BatchUpdateHandler) Handle(ctx context.Context, cmd BatchUpdateCommand)
 		settings = append(settings, existing)
 	}
 
-	// 5. 执行验证（如果有验证器）
-	if err := h.validateSettings(ctx, settings); err != nil {
-		return err
-	}
-
-	// 6. 批量更新
+	// 5. 批量更新
 	if err := h.commandRepo.BatchUpsert(ctx, settings); err != nil {
 		return fmt.Errorf("failed to batch update settings: %w", err)
 	}
@@ -83,31 +78,4 @@ func (h *BatchUpdateHandler) Handle(ctx context.Context, cmd BatchUpdateCommand)
 	}
 
 	return nil
-}
-
-// validateSettings 执行配置验证
-func (h *BatchUpdateHandler) validateSettings(ctx context.Context, settings []*setting.Setting) error {
-	// TODO: 实现完整的验证逻辑（需要 Validator 服务）
-	// 当前跳过验证，直接返回
-	return nil
-}
-
-// getAllSettingsMap 获取所有配置的 key -> value 映射
-func (h *BatchUpdateHandler) getAllSettingsMap(ctx context.Context, pendingUpdates []*setting.Setting) (map[string]any, error) {
-	settings, err := h.queryRepo.FindAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make(map[string]any, len(settings))
-	for _, s := range settings {
-		result[s.Key] = s.DefaultValue
-	}
-
-	// 合并待更新的值
-	for _, s := range pendingUpdates {
-		result[s.Key] = s.DefaultValue
-	}
-
-	return result, nil
 }

@@ -21,7 +21,7 @@ func NewSettingCommandRepository(db *gorm.DB) setting.CommandRepository {
 
 // Create 创建配置定义
 func (r *settingCommandRepository) Create(ctx context.Context, s *setting.Setting) error {
-	model := newSettingModelFromEntity(s)
+	model := toSettingModel(s)
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return fmt.Errorf("failed to create setting definition: %w", err)
 	}
@@ -36,7 +36,7 @@ func (r *settingCommandRepository) Create(ctx context.Context, s *setting.Settin
 
 // Update 更新配置定义
 func (r *settingCommandRepository) Update(ctx context.Context, s *setting.Setting) error {
-	model := newSettingModelFromEntity(s)
+	model := toSettingModel(s)
 	if err := r.db.WithContext(ctx).Save(model).Error; err != nil {
 		return fmt.Errorf("failed to update setting definition: %w", err)
 	}
@@ -64,7 +64,7 @@ func (r *settingCommandRepository) BatchUpsert(ctx context.Context, settings []*
 
 	models := make([]*SettingModel, 0, len(settings))
 	for _, s := range settings {
-		if model := newSettingModelFromEntity(s); model != nil {
+		if model := toSettingModel(s); model != nil {
 			models = append(models, model)
 		}
 	}

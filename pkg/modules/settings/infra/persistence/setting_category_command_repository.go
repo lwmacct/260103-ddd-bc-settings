@@ -19,7 +19,7 @@ func NewSettingCategoryCommandRepository(db *gorm.DB) setting.SettingCategoryCom
 
 // Create 创建配置分类。
 func (r *settingCategoryCommandRepository) Create(ctx context.Context, category *setting.SettingCategory) error {
-	model := newSettingCategoryModelFromEntity(category)
+	model := toCategoryModel(category)
 
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return err
@@ -32,7 +32,7 @@ func (r *settingCategoryCommandRepository) Create(ctx context.Context, category 
 
 // Update 更新配置分类。
 func (r *settingCategoryCommandRepository) Update(ctx context.Context, category *setting.SettingCategory) error {
-	model := newSettingCategoryModelFromEntity(category)
+	model := toCategoryModel(category)
 
 	// 仅更新可修改字段，Key 不可修改
 	return r.db.WithContext(ctx).

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"log/slog"
 	"runtime/debug"
 	"strconv"
@@ -11,6 +10,7 @@ import (
 	"github.com/lwmacct/260101-go-pkg-gin/pkg/response"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
 	settingDomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"go.uber.org/fx"
 )
 
 // SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)
@@ -36,34 +36,46 @@ type SettingHandler struct {
 	listCategoriesHandler *setting.ListCategoriesHandler
 }
 
+// settingHandlerParams 定义 NewSettingHandler 的依赖参数（使用 fx.In 聚合）
+type settingHandlerParams struct {
+	fx.In
+
+	// Setting Command Handlers
+	CreateHandler      *setting.CreateHandler
+	UpdateHandler      *setting.UpdateHandler
+	DeleteHandler      *setting.DeleteHandler
+	BatchUpdateHandler *setting.BatchUpdateHandler
+
+	// Setting Query Handlers
+	GetHandler        *setting.GetHandler
+	ListHandler       *setting.ListHandler
+	ListSchemaHandler *setting.ListSettingsHandler
+
+	// Category Command Handlers
+	CreateCategoryHandler *setting.CreateCategoryHandler
+	UpdateCategoryHandler *setting.UpdateCategoryHandler
+	DeleteCategoryHandler *setting.DeleteCategoryHandler
+
+	// Category Query Handlers
+	GetCategoryHandler    *setting.GetCategoryHandler
+	ListCategoriesHandler *setting.ListCategoriesHandler
+}
+
 // NewSettingHandler creates a new SettingHandler instance
-func NewSettingHandler(
-	createHandler *setting.CreateHandler,
-	updateHandler *setting.UpdateHandler,
-	deleteHandler *setting.DeleteHandler,
-	batchUpdateHandler *setting.BatchUpdateHandler,
-	getHandler *setting.GetHandler,
-	listHandler *setting.ListHandler,
-	listSchemaHandler *setting.ListSettingsHandler,
-	createCategoryHandler *setting.CreateCategoryHandler,
-	updateCategoryHandler *setting.UpdateCategoryHandler,
-	deleteCategoryHandler *setting.DeleteCategoryHandler,
-	getCategoryHandler *setting.GetCategoryHandler,
-	listCategoriesHandler *setting.ListCategoriesHandler,
-) *SettingHandler {
+func NewSettingHandler(p settingHandlerParams) *SettingHandler {
 	return &SettingHandler{
-		createHandler:         createHandler,
-		updateHandler:         updateHandler,
-		deleteHandler:         deleteHandler,
-		batchUpdateHandler:    batchUpdateHandler,
-		getHandler:            getHandler,
-		listHandler:           listHandler,
-		listSchemaHandler:     listSchemaHandler,
-		createCategoryHandler: createCategoryHandler,
-		updateCategoryHandler: updateCategoryHandler,
-		deleteCategoryHandler: deleteCategoryHandler,
-		getCategoryHandler:    getCategoryHandler,
-		listCategoriesHandler: listCategoriesHandler,
+		createHandler:         p.CreateHandler,
+		updateHandler:         p.UpdateHandler,
+		deleteHandler:         p.DeleteHandler,
+		batchUpdateHandler:    p.BatchUpdateHandler,
+		getHandler:            p.GetHandler,
+		listHandler:           p.ListHandler,
+		listSchemaHandler:     p.ListSchemaHandler,
+		createCategoryHandler: p.CreateCategoryHandler,
+		updateCategoryHandler: p.UpdateCategoryHandler,
+		deleteCategoryHandler: p.DeleteCategoryHandler,
+		getCategoryHandler:    p.GetCategoryHandler,
+		listCategoriesHandler: p.ListCategoriesHandler,
 	}
 }
 
@@ -75,27 +87,32 @@ func NewSettingHandler(
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
-//	@Param			category	query		string													false	"分类 Key（如 general），为空返回全量"
-//	@Success		200			{object}	response.DataResponse[[]setting.SettingsCategoryDTO]	"配置列表（层级结构）"
-//	@Failure		401			{object}	response.ErrorResponse									"未授权"
-//	@Failure		403			{object}	response.ErrorResponse									"权限不足"
-//	@Failure		404			{object}	response.ErrorResponse									"分类不存在"
-//	@Failure		500			{object}	response.ErrorResponse									"服务器内部错误"
+//	@Param			params	query	handler.ListSettingsQuery	false	"查询参数"
+//	@Success		200		{object}	response.DataResponse[[]setting.SettingsCategoryDTO]	"配置列表（层级结构）"
+//	@Failure		401		{object}	response.ErrorResponse									"未授权"
+//	@Failure		403		{object}	response.ErrorResponse									"权限不足"
+//	@Failure		404		{object}	response.ErrorResponse									"分类不存在"
+//	@Failure		500		{object}	response.ErrorResponse									"服务器内部错误"
 //	@Router			/api/admin/settings [get]
 func (h *SettingHandler) GetSettings(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
 			slog.Error("GetSettings panic", "error", err, "stack", string(debug.Stack()))
-			c.JSON(500, gin.H{"code": 500, "message": "Internal Server Error", "error": fmt.Sprintf("%v", err)})
+			response.InternalError(c, "Internal server error")
 			c.Abort()
 		}
 	}()
 
-	categoryKey := c.Query("category")
+	var query ListSettingsQuery
+	if err := c.ShouldBindQuery(&query); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	categoryKey := query.Category
 
 	// 检查 Handler 是否为 nil
 	if h.listSchemaHandler == nil {
-		c.JSON(500, gin.H{"code": 500, "message": "Internal Server Error"})
+		response.InternalError(c, "List settings handler not initialized")
 		return
 	}
 
@@ -114,6 +131,11 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	}
 
 	response.OK(c, schema)
+}
+
+// ListSettingsQuery 查询配置列表参数
+type ListSettingsQuery struct {
+	Category string `form:"category"`
 }
 
 // GetSetting 获取单个配置
@@ -312,7 +334,7 @@ type BatchUpdateSettingsRequest struct {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			request	body		BatchUpdateSettingsRequest	true	"配置列表"
-//	@Success		200		{object}	response.MessageResponse	"批量更新成功"
+//	@Success		200		{object}	response.EmptyResponse	"批量更新成功"
 //	@Failure		400		{object}	response.ErrorResponse		"参数错误"
 //	@Failure		401		{object}	response.ErrorResponse		"未授权"
 //	@Failure		403		{object}	response.ErrorResponse		"权限不足"
