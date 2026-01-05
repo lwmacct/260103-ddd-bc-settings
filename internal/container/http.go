@@ -54,25 +54,14 @@ func registerRoutes(r *gin.Engine, settingHandler *handler.SettingHandler) {
 		switch route.Method {
 		case ginroutes.GET:
 			r.GET(route.Path, route.Handler)
-			slog.Info("Registered GET route", "path", route.Path, "handler", route.Summary)
 		case ginroutes.POST:
 			r.POST(route.Path, route.Handler)
-			slog.Info("Registered POST route", "path", route.Path, "handler", route.Summary)
 		case ginroutes.PUT:
 			r.PUT(route.Path, route.Handler)
 		case ginroutes.DELETE:
 			r.DELETE(route.Path, route.Handler)
 		case ginroutes.PATCH:
 			r.PATCH(route.Path, route.Handler)
-		}
-	}
-
-	// 打印所有注册的路由（调试用）
-	routes := r.Routes()
-	slog.Info("Gin routes registered", "total", len(routes))
-	for _, route := range routes {
-		if route.Path == "/api/admin/settings" || route.Path == "/api/admin/settings/" {
-			slog.Info("Found admin/settings route", "method", route.Method, "path", route.Path, "handler", route.Handler)
 		}
 	}
 }

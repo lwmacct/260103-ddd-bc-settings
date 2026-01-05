@@ -8,9 +8,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/260101-go-pkg-gin/pkg/response"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
 	settingDomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
-	"github.com/lwmacct/260101-go-pkg-gin/pkg/response"
 )
 
 // SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)
@@ -71,7 +71,7 @@ func NewSettingHandler(
 //
 //	@Summary		配置列表
 //	@Description	获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
-//	@Tags			Admin - Settings
+//	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -92,12 +92,10 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	}()
 
 	categoryKey := c.Query("category")
-	slog.Info("GetSettings called", "categoryKey", categoryKey, "handlerNil", h.listSchemaHandler == nil)
 
 	// 检查 Handler 是否为 nil
 	if h.listSchemaHandler == nil {
-		slog.Error("listSchemaHandler is nil!")
-		c.JSON(500, gin.H{"code": 500, "message": "listSchemaHandler is nil"})
+		c.JSON(500, gin.H{"code": 500, "message": "Internal Server Error"})
 		return
 	}
 
@@ -106,7 +104,6 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		CategoryKey: categoryKey,
 	})
 	if err != nil {
-		slog.Error("GetSettings failed", "error", err, "categoryKey", categoryKey)
 		// 检查是否为分类不存在错误
 		if categoryKey != "" && err.Error() == "category not found: "+categoryKey {
 			response.NotFoundMessage(c, err.Error())
@@ -117,14 +114,13 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 	}
 
 	response.OK(c, schema)
-	slog.Info("GetSettings success", "categoryKey", categoryKey, "schemaCount", len(schema))
 }
 
 // GetSetting 获取单个配置
 //
 //	@Summary		配置详情
 //	@Description	根据配置键获取配置详情
-//	@Tags			Admin - Settings
+//	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -166,7 +162,7 @@ type CreateSettingRequest struct {
 //
 //	@Summary		创建配置
 //	@Description	管理员创建新的系统配置项
-//	@Tags			Admin - Settings
+//	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -225,7 +221,7 @@ type UpdateSettingRequest struct {
 //
 //	@Summary		更新配置
 //	@Description	管理员更新指定配置项的值和标签
-//	@Tags			Admin - Settings
+//	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -272,7 +268,7 @@ func (h *SettingHandler) UpdateSetting(c *gin.Context) {
 //
 //	@Summary		删除配置
 //	@Description	管理员删除指定的系统配置项
-//	@Tags			Admin - Settings
+//	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -311,7 +307,7 @@ type BatchUpdateSettingsRequest struct {
 //
 //	@Summary		批量更新配置
 //	@Description	管理员批量更新多个系统配置项的值
-//	@Tags			Admin - Settings
+//	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -363,7 +359,7 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 //
 //	@Summary		配置分类列表
 //	@Description	获取所有配置分类，按排序权重升序排列
-//	@Tags			Admin - Setting Categories
+//	@Tags			categories
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -386,7 +382,7 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 //
 //	@Summary		配置分类详情
 //	@Description	根据 ID 获取配置分类详情
-//	@Tags			Admin - Setting Categories
+//	@Tags			categories
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -430,7 +426,7 @@ type CreateCategoryRequest struct {
 //
 //	@Summary		创建配置分类
 //	@Description	管理员创建新的配置分类
-//	@Tags			Admin - Setting Categories
+//	@Tags			categories
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -482,7 +478,7 @@ type UpdateCategoryRequest struct {
 //
 //	@Summary		更新配置分类
 //	@Description	管理员更新指定配置分类的信息（Key 不可修改）
-//	@Tags			Admin - Setting Categories
+//	@Tags			categories
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -526,7 +522,7 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 //
 //	@Summary		删除配置分类
 //	@Description	管理员删除指定的配置分类（如有关联配置项则拒绝删除）
-//	@Tags			Admin - Setting Categories
+//	@Tags			categories
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
