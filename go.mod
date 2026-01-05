@@ -8,7 +8,7 @@ require (
 	github.com/go-resty/resty/v2 v2.17.1
 	github.com/lwmacct/251207-go-pkg-cfgm v0.2.4
 	github.com/lwmacct/251219-go-pkg-logm v0.1.8
-	github.com/lwmacct/260103-ddd-shared v0.0.7
+	github.com/lwmacct/260103-ddd-shared v0.2.260105
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/files v1.0.1
