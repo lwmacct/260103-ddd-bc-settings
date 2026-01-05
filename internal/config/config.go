@@ -45,6 +45,11 @@ type Telemetry struct {
 	SampleRate   float64 `koanf:"sample-rate" desc:"采样率 (0.0-1.0)，1.0 表示全部采样"`
 }
 
+// Settings
+type Settings struct {
+	BasePath string `koanf:"base-path" desc:"Settings 模块的 URL 基础路径 (默认 '/api/admin/settings')"`
+}
+
 // Config 应用配置
 type Config struct {
 	Server    Server    `koanf:"server" desc:"服务器配置"`
@@ -52,6 +57,7 @@ type Config struct {
 	JWT       JWT       `koanf:"jwt" desc:"JWT 认证配置"`
 	Auth      Auth      `koanf:"auth" desc:"认证配置"`
 	Telemetry Telemetry `koanf:"telemetry" desc:"OpenTelemetry 追踪配置"`
+	Settings  Settings  `koanf:"settings" desc:"Settings 模块配置"`
 }
 
 // GetBaseUrl 返回服务的基础URL
@@ -101,6 +107,9 @@ func DefaultConfig() Config {
 			ExporterType: "none", // 默认不导出
 			OTLPEndpoint: "localhost:4317",
 			SampleRate:   1.0, // 默认全部采样
+		},
+		Settings: Settings{
+			BasePath: "/api/admin/settings", // 默认基础路径
 		},
 	}
 }

@@ -21,5 +21,8 @@ func newSettingsConfig(cfg *config.Config) *settingsconfig.Config {
 		Redis: settingsconfig.Redis{
 			KeyPrefix: cfg.Data.RedisKeyPrefix,
 		},
+		HTTP: settingsconfig.HTTP{
+			BasePath: cfg.Settings.BasePath,
+		},
 	}
 }

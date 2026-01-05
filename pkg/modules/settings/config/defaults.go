@@ -6,5 +6,8 @@ func DefaultConfig() Config {
 		Redis: Redis{
 			KeyPrefix: "app:",
 		},
+		HTTP: HTTP{
+			BasePath: "/api/admin/settings", // 默认基础路径
+		},
 	}
 }
