@@ -117,7 +117,30 @@ func main() {
 func startServer(ctx context.Context, cmd *cli.Command) error {
 	cfg := loadConfig(cmd)
 
-	fxOptions := buildFxOptions(cfg)
+	fxOptions := []fx.Option{
+		fx.Supply(cfg),
+		fx.StartTimeout(30 * time.Second),
+		fx.StopTimeout(10 * time.Second),
+		// Platform 层 (基础设施)
+		container.InfraModule,
+		// Settings 模块配置（从全局 config 提取）
+		container.SettingsConfigModule,
+		// 业务模块 (Bounded Contexts) - 完全自治
+		settings.Module(),
+		// HTTP 层 (跨模块handler + 路由)
+		container.HTTPModule,
+		// Swagger 端点注册 - 使用者决定
+		fx.Invoke(func(r *gin.Engine) {
+			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		}),
+	}
+
+	// CLI --fx-log 优先级高于配置文件
+	if !cfg.Server.FxLogEnabled && !fxLogEnable {
+		fxOptions = append(fxOptions, fx.WithLogger(func() fxevent.Logger {
+			return nopLogger{}
+		}))
+	}
 
 	fxApp := fx.New(fxOptions...)
 	if err := fxApp.Err(); err != nil {
@@ -212,37 +235,6 @@ func loadConfig(cmd *cli.Command) *config.Config {
 
 	// 使用 cfgm.MustLoadCmd 加载配置
 	return cfgm.MustLoadCmd(cmd, config.DefaultConfig(), "", opts...)
-}
-
-// buildFxOptions 构建 Fx 选项。
-func buildFxOptions(cfg *config.Config) []fx.Option {
-	fxOptions := []fx.Option{
-		fx.Supply(cfg),
-		fx.StartTimeout(30 * time.Second),
-		fx.StopTimeout(10 * time.Second),
-		// Platform 层 (基础设施)
-		container.InfraModule,
-		// Settings 模块配置（从全局 config 提取）
-		container.SettingsConfigModule,
-		// 业务模块 (Bounded Contexts) - 完全自治
-		settings.Module(),
-		// HTTP 层 (跨模块handler + 路由)
-		container.HTTPModule,
-		container.HooksModule,
-		// Swagger 端点注册 - 使用者决定
-		fx.Invoke(func(r *gin.Engine) {
-			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-		}),
-	}
-
-	// CLI --fx-log 优先级高于配置文件
-	if !cfg.Server.FxLogEnabled && !fxLogEnable {
-		fxOptions = append(fxOptions, fx.WithLogger(func() fxevent.Logger {
-			return nopLogger{}
-		}))
-	}
-
-	return fxOptions
 }
 
 // migrateDatabase 执行数据库迁移。

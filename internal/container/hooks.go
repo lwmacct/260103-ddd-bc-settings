@@ -12,8 +12,6 @@ import (
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/seeds"
 )
 
-// HooksModule 提供生命周期钩子。
-var HooksModule = fx.Module("hooks")
 
 // GetAllModels 返回所有需要迁移的 Model。
 func GetAllModels() []interface{} {
