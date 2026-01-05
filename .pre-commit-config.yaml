@@ -19,7 +19,7 @@ repos:
 
       - id: swagger-generate
         name: Generate Swagger/OpenAPI docs
-        entry: swag init -g internal/command/server/command.go -o docs/swagger --parseDependency --parseInternal
+        entry: swag init -g internal/command/server/command.go -o docs/swagger --parseDependencyLevel 3 --parseInternal
         language: system
         pass_filenames: false
         stages: [pre-commit]
