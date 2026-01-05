@@ -10,7 +10,6 @@ import (
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
 	settingDomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/response"
-	"go.uber.org/fx"
 )
 
 // SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)
@@ -36,46 +35,21 @@ type SettingHandler struct {
 	listCategoriesHandler *setting.ListCategoriesHandler
 }
 
-// settingHandlerParams 定义 NewSettingHandler 的依赖参数（使用 fx.In 聚合）
-type settingHandlerParams struct {
-	fx.In
-
-	// Setting Command Handlers
-	CreateHandler      *setting.CreateHandler
-	UpdateHandler      *setting.UpdateHandler
-	DeleteHandler      *setting.DeleteHandler
-	BatchUpdateHandler *setting.BatchUpdateHandler
-
-	// Setting Query Handlers
-	GetHandler        *setting.GetHandler
-	ListHandler       *setting.ListHandler
-	ListSchemaHandler *setting.ListSettingsHandler
-
-	// Category Command Handlers
-	CreateCategoryHandler *setting.CreateCategoryHandler
-	UpdateCategoryHandler *setting.UpdateCategoryHandler
-	DeleteCategoryHandler *setting.DeleteCategoryHandler
-
-	// Category Query Handlers
-	GetCategoryHandler    *setting.GetCategoryHandler
-	ListCategoriesHandler *setting.ListCategoriesHandler
-}
-
-// NewSettingHandler creates a new SettingHandler instance
-func NewSettingHandler(p settingHandlerParams) *SettingHandler {
+// NewSettingHandler creates a new SettingHandler instance from SettingUseCases.
+func NewSettingHandler(useCases *setting.SettingUseCases) *SettingHandler {
 	return &SettingHandler{
-		createHandler:         p.CreateHandler,
-		updateHandler:         p.UpdateHandler,
-		deleteHandler:         p.DeleteHandler,
-		batchUpdateHandler:    p.BatchUpdateHandler,
-		getHandler:            p.GetHandler,
-		listHandler:           p.ListHandler,
-		listSchemaHandler:     p.ListSchemaHandler,
-		createCategoryHandler: p.CreateCategoryHandler,
-		updateCategoryHandler: p.UpdateCategoryHandler,
-		deleteCategoryHandler: p.DeleteCategoryHandler,
-		getCategoryHandler:    p.GetCategoryHandler,
-		listCategoriesHandler: p.ListCategoriesHandler,
+		createHandler:         useCases.Create,
+		updateHandler:         useCases.Update,
+		deleteHandler:         useCases.Delete,
+		batchUpdateHandler:    useCases.BatchUpdate,
+		getHandler:            useCases.Get,
+		listHandler:           useCases.List,
+		listSchemaHandler:     useCases.ListSettings,
+		createCategoryHandler: useCases.CreateCategory,
+		updateCategoryHandler: useCases.UpdateCategory,
+		deleteCategoryHandler: useCases.DeleteCategory,
+		getCategoryHandler:    useCases.GetCategory,
+		listCategoriesHandler: useCases.ListCategories,
 	}
 }
 
