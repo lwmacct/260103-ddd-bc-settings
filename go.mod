@@ -13,6 +13,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
+	github.com/swaggo/swag v1.16.6
 	github.com/urfave/cli/v3 v3.6.1
 	go.uber.org/fx v1.24.0
 	gorm.io/datatypes v1.2.7
@@ -78,7 +79,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.58.0 // indirect
-	github.com/swaggo/swag v1.16.6 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
