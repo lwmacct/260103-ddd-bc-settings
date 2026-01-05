@@ -10,10 +10,3 @@ var HandlerModule = fx.Module("settings.handler",
 		NewSettingHandler,
 	),
 )
-
-// HandlersResult 批量返回 Handler（使用 fx.Out）。
-type HandlersResult struct {
-	fx.Out
-
-	Setting *SettingHandler
-}
