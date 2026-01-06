@@ -71,3 +71,44 @@ func (r *settingCategoryQueryRepository) ExistsByKey(ctx context.Context, key st
 	}
 	return count > 0, nil
 }
+
+// FindByVisibleScope 查询对指定级别可见的分类。
+//
+// 返回条件：查询级别的权限 >= 分类的 Scope 级别。
+// 例如：scope=ScopeLevelUser 返回 Scope 为 user/public 的分类。
+func (r *settingCategoryQueryRepository) FindByVisibleScope(ctx context.Context, scope setting.ScopeLevel) ([]*setting.SettingCategory, error) {
+	visibleScopes := getVisibleScopes(scope)
+	if len(visibleScopes) == 0 {
+		return []*setting.SettingCategory{}, nil
+	}
+
+	var models []SettingCategoryModel
+	if err := r.db.WithContext(ctx).
+		Where("scope IN ?", visibleScopes).
+		Order("sort_order ASC").
+		Find(&models).Error; err != nil {
+		return nil, err
+	}
+	return toCategoryEntities(models), nil
+}
+
+// getVisibleScopes 返回指定级别可见的所有 Scope 值。
+//
+// 权限从高到低：system > org > team > user > public
+// system 可见所有，user 只能看 user 和 public。
+func getVisibleScopes(scope setting.ScopeLevel) []string {
+	switch scope {
+	case setting.ScopeLevelSystem:
+		return []string{"system", "org", "team", "user", "public"}
+	case setting.ScopeLevelOrg:
+		return []string{"org", "team", "user", "public"}
+	case setting.ScopeLevelTeam:
+		return []string{"team", "user", "public"}
+	case setting.ScopeLevelUser:
+		return []string{"user", "public"}
+	case setting.ScopeLevelPublic:
+		return []string{"public"}
+	default:
+		return []string{}
+	}
+}

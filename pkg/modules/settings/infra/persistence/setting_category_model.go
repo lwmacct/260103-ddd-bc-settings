@@ -15,6 +15,7 @@ type SettingCategoryModel struct {
 	Label string `gorm:"size:200;not null"`
 	Icon  string `gorm:"size:100;not null;default:'mdi-cog'"`
 	Order int    `gorm:"column:sort_order;default:0;index"`
+	Scope string `gorm:"size:20;not null;default:'system';index"` // 可见性级别
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -37,6 +38,7 @@ func toCategoryModel(entity *setting.SettingCategory) *SettingCategoryModel {
 		Label:     entity.Label,
 		Icon:      entity.Icon,
 		Order:     entity.Order,
+		Scope:     string(entity.Scope),
 		CreatedAt: entity.CreatedAt,
 		UpdatedAt: entity.UpdatedAt,
 	}
@@ -54,6 +56,7 @@ func (m *SettingCategoryModel) ToEntity() *setting.SettingCategory {
 		Label:     m.Label,
 		Icon:      m.Icon,
 		Order:     m.Order,
+		Scope:     setting.ScopeLevel(m.Scope),
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
 	}

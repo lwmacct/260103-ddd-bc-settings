@@ -100,4 +100,10 @@ type SettingCategoryQueryRepository interface {
 
 	// ExistsByKey 检查 Key 是否已存在
 	ExistsByKey(ctx context.Context, key string) (bool, error)
+
+	// FindByVisibleScope 查询对指定级别可见的分类。
+	//
+	// 返回条件：查询级别的权限 >= 分类的 Scope 级别。
+	// 例如：scope=ScopeLevelUser 返回 Scope 为 user/public 的分类。
+	FindByVisibleScope(ctx context.Context, scope ScopeLevel) ([]*SettingCategory, error)
 }

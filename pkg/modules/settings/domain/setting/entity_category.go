@@ -13,13 +13,15 @@ import (
 // 设计说明：
 //   - Key 字段与 [Setting.Category] 关联，用于分组查询
 //   - Label/Icon/Order 供前端渲染 Tab 导航
+//   - Scope 控制分类的可见性级别
 //   - 前端无需硬编码任何 Category 信息
 type SettingCategory struct {
-	ID    uint   `json:"id"`    // 唯一标识
-	Key   string `json:"key"`   // 分类键，唯一约束（general, security, notification, backup）
-	Label string `json:"label"` // 显示名称（如 "常规设置"）
-	Icon  string `json:"icon"`  // Tab 图标（mdi-xxx 格式）
-	Order int    `json:"order"` // 排序权重（小的在前）
+	ID    uint       `json:"id"`    // 唯一标识
+	Key   string     `json:"key"`   // 分类键，唯一约束（general, security, notification, backup）
+	Label string     `json:"label"` // 显示名称（如 "常规设置"）
+	Icon  string     `json:"icon"`  // Tab 图标（mdi-xxx 格式）
+	Order int        `json:"order"` // 排序权重（小的在前）
+	Scope ScopeLevel `json:"scope"` // 可见性级别：system | org | team | user | public
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -87,4 +89,16 @@ func (c *SettingCategory) UpdateIcon(icon string) {
 // UpdateOrder 更新排序权重。
 func (c *SettingCategory) UpdateOrder(order int) {
 	c.Order = order
+}
+
+// =============================================================================
+// 可见性方法
+// =============================================================================
+
+// IsVisibleAtScope 报告分类是否对指定级别可见。
+//
+// 返回 true 当查询级别的权限 >= 分类的 Scope 级别。
+// 例如：Scope="user" 的分类对 system/org/team/user 级别都可见。
+func (c *SettingCategory) IsVisibleAtScope(scope ScopeLevel) bool {
+	return compareScopeLevel(scope, c.Scope) >= 0
 }
