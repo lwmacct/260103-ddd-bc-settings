@@ -50,19 +50,6 @@ func (c *SettingCategory) Validate() error {
 	return nil
 }
 
-// IsValidKey 报告 Key 是否为已知的有效分类。
-//
-// 注意：此方法用于验证 Key 是否匹配预定义的分类常量。
-// 如果需要支持动态分类，可以移除此验证或改为查询数据库。
-func (c *SettingCategory) IsValidKey() bool {
-	switch c.Key {
-	case CategoryGeneral, CategorySecurity, CategoryNotification, CategoryBackup:
-		return true
-	default:
-		return false
-	}
-}
-
 // =============================================================================
 // 查询方法
 // =============================================================================

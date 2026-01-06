@@ -43,7 +43,7 @@ func (s *SettingSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			"input_type", "validation", "ui_config", // hint 已移入 ui_config
 			"group", "order", "label",
 			"visible_at", "configurable_at", // 新字段
-		}), // 更新 UI 元数据，不覆盖用户修改的默认值
+		}), // 仅更新 UI 元数据，保留已有的 DefaultValue（通过 API 修改的值）
 	}).Create(&definitions)
 	if result.Error != nil {
 		return result.Error

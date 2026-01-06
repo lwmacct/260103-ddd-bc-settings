@@ -848,25 +848,3 @@ func TestSettingCategory_Validate(t *testing.T) {
 		})
 	}
 }
-
-func TestSettingCategory_IsValidKey(t *testing.T) {
-	tests := []struct {
-		name string
-		key  string
-		want bool
-	}{
-		{"general is valid", CategoryGeneral, true},
-		{"security is valid", CategorySecurity, true},
-		{"notification is valid", CategoryNotification, true},
-		{"backup is valid", CategoryBackup, true},
-		{"unknown is invalid", "unknown", false},
-		{"empty is invalid", "", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &SettingCategory{Key: tt.key}
-			assert.Equal(t, tt.want, c.IsValidKey())
-		})
-	}
-}

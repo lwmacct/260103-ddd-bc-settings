@@ -25,14 +25,14 @@ type Data struct {
 
 // JWT JWT配置
 type JWT struct {
-	Secret             string        `koanf:"secret" desc:"JWT 签名密钥 - ⚠️ 生产环境务必修改! 建议通过环境变量 APP_JWT_SECRET 设置"`
+	Secret             string        `koanf:"secret" desc:"JWT 签名密钥 - ⚠️ 生产环境必须通过环境变量 APP_JWT_SECRET 覆盖此默认值"`
 	AccessTokenExpiry  time.Duration `koanf:"access-token-expiry" desc:"访问令牌过期时间 (格式: 15m, 1h, 24h 等)"`
 	RefreshTokenExpiry time.Duration `koanf:"refresh-token-expiry" desc:"刷新令牌过期时间 (168h = 7天)"`
 }
 
 // Auth 认证配置
 type Auth struct {
-	DevSecret       string `koanf:"dev-secret" desc:"开发模式密钥 (用于验证码开发模式) - ⚠️ 生产环境务必修改! 建议通过环境变量 APP_AUTH_DEV_SECRET 设置"`
+	DevSecret       string `koanf:"dev-secret" desc:"开发模式密钥 (用于验证码开发模式) - ⚠️ 生产环境必须通过环境变量 APP_AUTH_DEV_SECRET 覆盖此默认值"`
 	TwoFAIssuer     string `koanf:"twofa-issuer" desc:"2FA TOTP 发行者名称，显示在用户的验证器应用中"`
 	CaptchaRequired bool   `koanf:"captcha-required" desc:"是否需要验证码 (可在生产环境强制开启以提升安全性)"`
 }
@@ -93,12 +93,12 @@ func DefaultConfig() Config {
 			AutoMigrate:    false, // 默认关闭自动迁移，生产环境使用 migrate 命令
 		},
 		JWT: JWT{
-			Secret:             "change-me-in-production",
+			Secret:             "insecure-default-override-via-env",
 			AccessTokenExpiry:  15 * time.Minute,
 			RefreshTokenExpiry: 7 * 24 * time.Hour,
 		},
 		Auth: Auth{
-			DevSecret:       "dev-secret-change-me",
+			DevSecret:       "insecure-default-override-via-env",
 			TwoFAIssuer:     "Go-DDD-Package-Lib",
 			CaptchaRequired: true, // 默认开启验证码
 		},
