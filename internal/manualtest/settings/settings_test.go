@@ -22,7 +22,7 @@ func TestPublicSettings(t *testing.T) {
 	manualtest.SkipIfNotManual(t)
 	c := manualtest.NewClient(baseURL)
 
-	// 调用公开 API - 无需认证
+	// 调用公开 API - 无需认证（返回扁平结构）
 	result, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	require.NoError(t, err, "获取公开配置列表失败")
 
@@ -32,49 +32,23 @@ func TestPublicSettings(t *testing.T) {
 		return
 	}
 
-	t.Logf("找到 %d 个公开配置分类", len(*result))
+	t.Logf("找到 %d 个公开配置项", len(*result))
 
-	// 验证公开 API 响应结构
-	for _, category := range *result {
-		// 检查 Category 字段
-		categoryKey, ok := category["category"].(string)
-		assert.True(t, ok, "Category 应该有 category 字段")
-		assert.NotEmpty(t, categoryKey, "Category key 不应为空")
+	// 验证扁平结构：每个 item 只包含 key, value, label
+	for _, setting := range *result {
+		// 公开 API 的 setting 只应包含 key, value, label
+		assert.Contains(t, setting, "key", "Setting 应该有 key 字段")
+		assert.Contains(t, setting, "value", "Setting 应该有 value 字段")
+		assert.Contains(t, setting, "label", "Setting 应该有 label 字段")
 
-		// 公开 API 应该有 label 字段
-		label, ok := category["label"].(string)
-		assert.True(t, ok, "Category 应该有 label 字段")
-		assert.NotEmpty(t, label, "Category label 不应为空")
+		// 公开 API 不应暴露敏感字段
+		assert.NotContains(t, setting, "visible_at", "公开 API 不应暴露 visible_at")
+		assert.NotContains(t, setting, "configurable_at", "公开 API 不应暴露 configurable_at")
+		assert.NotContains(t, setting, "ui_config", "公开 API 不应暴露 ui_config")
+		assert.NotContains(t, setting, "validation", "公开 API 不应暴露 validation")
+		assert.NotContains(t, setting, "input_type", "公开 API 不应暴露 input_type")
 
-		// 检查 Groups 字段
-		groups, ok := category["groups"].([]any)
-		assert.True(t, ok, "Category 应该有 groups 数组")
-
-		for _, group := range groups {
-			groupMap := group.(map[string]any)
-
-			// 检查 Group 的 settings
-			settings, ok := groupMap["settings"].([]any)
-			assert.True(t, ok, "Group 应该有 settings 数组")
-
-			for _, setting := range settings {
-				settingMap := setting.(map[string]any)
-
-				// 公开 API 的 setting 只应包含 key, value, label
-				assert.Contains(t, settingMap, "key", "Setting 应该有 key 字段")
-				assert.Contains(t, settingMap, "value", "Setting 应该有 value 字段")
-				assert.Contains(t, settingMap, "label", "Setting 应该有 label 字段")
-
-				// 公开 API 不应暴露敏感字段
-				assert.NotContains(t, settingMap, "visible_at", "公开 API 不应暴露 visible_at")
-				assert.NotContains(t, settingMap, "configurable_at", "公开 API 不应暴露 configurable_at")
-				assert.NotContains(t, settingMap, "ui_config", "公开 API 不应暴露 ui_config")
-				assert.NotContains(t, settingMap, "validation", "公开 API 不应暴露 validation")
-				assert.NotContains(t, settingMap, "input_type", "公开 API 不应暴露 input_type")
-
-				t.Logf("公开设置: Key=%s, Label=%s", settingMap["key"], settingMap["label"])
-			}
-		}
+		t.Logf("公开设置: Key=%s, Label=%s", setting["key"], setting["label"])
 	}
 }
 
@@ -83,7 +57,7 @@ func TestPublicSettingsWithCategoryFilter(t *testing.T) {
 	manualtest.SkipIfNotManual(t)
 	c := manualtest.NewClient(baseURL)
 
-	// 使用 category_key 参数过滤
+	// 使用 category_key 参数过滤（扁平结构不包含 category 字段）
 	result, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", map[string]string{
 		"category_key": "general",
 	})
@@ -94,13 +68,13 @@ func TestPublicSettingsWithCategoryFilter(t *testing.T) {
 		return
 	}
 
-	// 如果有结果，验证只返回 general 分类
-	for _, category := range *result {
-		categoryKey := category["category"].(string)
-		assert.Equal(t, "general", categoryKey, "应该只返回 general 分类")
+	// 验证返回的是扁平结构（只有 key, value, label）
+	for _, setting := range *result {
+		assert.Contains(t, setting, "key", "Setting 应该有 key 字段")
+		assert.Contains(t, setting, "value", "Setting 应该有 value 字段")
 	}
 
-	t.Logf("general 分类返回 %d 个配置分类", len(*result))
+	t.Logf("general 分类返回 %d 个公开配置项", len(*result))
 }
 
 // TestPublicSettingsNoAuth 测试公开 API 无需认证
@@ -176,39 +150,39 @@ func TestSettingsAPIPerformance(t *testing.T) {
 	t.Logf("API 响应时间: %v, 返回 %d 个分类", duration, len(*result))
 }
 
-// TestGetSettings 测试获取配置列表（层级结构）
+// TestGetSettings 测试获取配置列表（扁平结构）
 func TestGetSettings(t *testing.T) {
 	manualtest.SkipIfNotManual(t)
 	c := manualtest.NewClient(baseURL)
 
-	// 调用 API - 获取层级结构的配置列表
+	// 调用 API - 获取扁平结构的配置列表
 	result, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取配置列表失败")
 
 	// 验证结果
 	assert.NotEmpty(t, result, "配置列表不应为空")
 
-	t.Logf("找到 %d 个分类配置", len(*result))
+	t.Logf("找到 %d 个配置项", len(*result))
 
-	// 验证层级结构：应该有 Category → Groups → Settings 的三层结构
-	for _, category := range *result {
-		// 检查 Category 字段
-		categoryKey, ok := category["category"].(string)
-		assert.True(t, ok, "Category 应该有 key 字段")
-		assert.NotEmpty(t, categoryKey, "Category key 不应为空")
+	// 验证扁平结构：每个 item 包含 category/group 字段供前端分组
+	for i, setting := range *result {
+		// 检查必要字段
+		key, ok := setting["key"].(string)
+		assert.True(t, ok, "Setting 应该有 key 字段")
+		assert.NotEmpty(t, key, "Setting key 不应为空")
 
-		// 检查 Groups 字段
-		groups, ok := category["groups"].([]any)
-		assert.True(t, ok, "Category 应该有 groups 数组")
-		assert.NotEmpty(t, groups, "Groups 不应为空")
+		// 扁平结构中每个 item 包含 category 和 group 字段
+		category, ok := setting["category"].(string)
+		assert.True(t, ok, "Setting 应该有 category 字段")
+		assert.NotEmpty(t, category, "Setting category 不应为空")
 
-		// 检查第一个 Group 的结构
-		if len(groups) > 0 {
-			firstGroup := groups[0].(map[string]any)
-			assert.Contains(t, firstGroup, "name", "Group 应该有 name 字段")
-			assert.Contains(t, firstGroup, "settings", "Group 应该有 settings 数组")
+		group, ok := setting["group"].(string)
+		assert.True(t, ok, "Setting 应该有 group 字段")
+		assert.NotEmpty(t, group, "Setting group 不应为空")
 
-			t.Logf("Category: %s, 第一个 Group: %v", categoryKey, firstGroup["name"])
+		// 只打印前 3 个作为示例
+		if i < 3 {
+			t.Logf("配置项: Key=%s, Category=%s, Group=%s", key, category, group)
 		}
 	}
 }
@@ -218,23 +192,13 @@ func TestGetSettingByKey(t *testing.T) {
 	manualtest.SkipIfNotManual(t)
 	c := manualtest.NewClient(baseURL)
 
-	// 先获取配置列表，找到一个有效的 key
+	// 先获取配置列表，找到一个有效的 key（扁平结构）
 	settingsList, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取配置列表失败")
 	require.NotEmpty(t, settingsList, "至少需要一个配置")
 
-	// 从第一个分类的第一个分组中获取第一个配置的 key
-	firstCategory := (*settingsList)[0]
-	groups, ok := firstCategory["groups"].([]any)
-	require.True(t, ok, "Category 应该有 groups 数组")
-	require.NotEmpty(t, groups, "Groups 不应为空")
-
-	firstGroup := groups[0].(map[string]any)
-	settings, ok := firstGroup["settings"].([]any)
-	require.True(t, ok, "Group 应该有 settings 数组")
-	require.NotEmpty(t, settings, "Settings 不应为空")
-
-	firstSetting := settings[0].(map[string]any)
+	// 从扁平列表中获取第一个配置的 key
+	firstSetting := (*settingsList)[0]
 	testKey, ok := firstSetting["key"].(string)
 	require.True(t, ok, "Setting 应该有 key 字段")
 
@@ -280,45 +244,37 @@ func TestGetCategoryByID(t *testing.T) {
 		(*result)["id"], (*result)["key"], (*result)["label"])
 }
 
-// TestSettingsSchemaStructure 测试配置层级结构的正确性
-func TestSettingsSchemaStructure(t *testing.T) {
+// TestSettingsFlatStructure 测试配置扁平结构的正确性
+func TestSettingsFlatStructure(t *testing.T) {
 	manualtest.SkipIfNotManual(t)
 	c := manualtest.NewClient(baseURL)
 
-	// 获取完整的配置 schema
+	// 获取配置列表（扁平结构）
 	result, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
-	require.NoError(t, err, "获取配置 schema 失败")
+	require.NoError(t, err, "获取配置列表失败")
+	require.NotEmpty(t, result, "配置列表不应为空")
 
-	require.NotEmpty(t, result, "Schema 不应为空")
+	totalSettings := len(*result)
 
-	totalCategories := len(*result)
-	totalGroups := 0
-	totalSettings := 0
+	// 统计分类和分组
+	categories := make(map[string]bool)
+	groups := make(map[string]bool)
 
-	// 遍历层级结构统计
-	for _, category := range *result {
-		groups, ok := category["groups"].([]any)
-		require.True(t, ok, "Category 应该有 groups 数组")
-
-		totalGroups += len(groups)
-
-		for _, group := range groups {
-			groupMap, ok := group.(map[string]any)
-			require.True(t, ok, "Group 应该是 map")
-
-			settings, ok := groupMap["settings"].([]any)
-			require.True(t, ok, "Group 应该有 settings 数组")
-
-			totalSettings += len(settings)
+	for _, setting := range *result {
+		if cat, ok := setting["category"].(string); ok {
+			categories[cat] = true
+		}
+		if grp, ok := setting["group"].(string); ok {
+			groups[grp] = true
 		}
 	}
 
-	t.Logf("层级结构统计: %d 个分类, %d 个分组, %d 个配置项",
-		totalCategories, totalGroups, totalSettings)
+	t.Logf("扁平结构统计: %d 个分类, %d 个分组, %d 个配置项",
+		len(categories), len(groups), totalSettings)
 
 	// 验证数据合理性
-	assert.Greater(t, totalCategories, 0, "至少应该有一个分类")
-	assert.Greater(t, totalGroups, 0, "至少应该有一个分组")
+	assert.NotEmpty(t, categories, "至少应该有一个分类")
+	assert.NotEmpty(t, groups, "至少应该有一个分组")
 	assert.Greater(t, totalSettings, 0, "至少应该有一个配置项")
 }
 
@@ -331,41 +287,26 @@ func TestPublicVsAdminAPIComparison(t *testing.T) {
 	manualtest.SkipIfNotManual(t)
 	c := manualtest.NewClient(baseURL)
 
-	// 获取管理员 API 的配置列表
+	// 获取管理员 API 的配置列表（扁平结构）
 	adminResult, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取管理员配置列表失败")
 
-	// 获取公开 API 的配置列表
+	// 获取公开 API 的配置列表（扁平结构）
 	publicResult, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	require.NoError(t, err, "获取公开配置列表失败")
 
 	// 统计管理员 API 中的公开配置数量
 	adminPublicCount := 0
-	for _, category := range *adminResult {
-		groups, _ := category["groups"].([]any)
-		for _, group := range groups {
-			groupMap := group.(map[string]any)
-			settings, _ := groupMap["settings"].([]any)
-			for _, setting := range settings {
-				settingMap := setting.(map[string]any)
-				if visibleAt, ok := settingMap["visible_at"].(string); ok && visibleAt == "public" {
-					adminPublicCount++
-				}
-			}
+	for _, setting := range *adminResult {
+		if visibleAt, ok := setting["visible_at"].(string); ok && visibleAt == "public" {
+			adminPublicCount++
 		}
 	}
 
 	// 统计公开 API 返回的配置数量
 	publicCount := 0
 	if publicResult != nil {
-		for _, category := range *publicResult {
-			groups, _ := category["groups"].([]any)
-			for _, group := range groups {
-				groupMap := group.(map[string]any)
-				settings, _ := groupMap["settings"].([]any)
-				publicCount += len(settings)
-			}
-		}
+		publicCount = len(*publicResult)
 	}
 
 	t.Logf("管理员 API 中公开配置数量: %d", adminPublicCount)
