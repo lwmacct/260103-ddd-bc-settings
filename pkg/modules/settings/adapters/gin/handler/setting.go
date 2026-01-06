@@ -55,16 +55,16 @@ func NewSettingHandler(useCases *setting.SettingUseCases) *SettingHandler {
 	}
 }
 
-// GetSettings 获取系统配置（层级结构）
+// GetSettings 获取系统配置（扁平结构）
 //
 //	@Summary		配置列表
-//	@Description	获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。
+//	@Description	获取配置数据，扁平结构（每个 item 包含 category 和 group 字段供前端分组）。支持按分类过滤（懒加载）。
 //	@Tags			settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			params	query	handler.ListSettingsQuery	false	"查询参数"
-//	@Success		200		{object}	response.DataResponse[[]setting.SettingsCategoryDTO]	"配置列表（层级结构）"
+//	@Success		200		{object}	response.DataResponse[[]setting.SettingsItemDTO]	"配置列表（扁平结构）"
 //	@Failure		401		{object}	response.ErrorResponse									"未授权"
 //	@Failure		403		{object}	response.ErrorResponse									"权限不足"
 //	@Failure		404		{object}	response.ErrorResponse									"分类不存在"
@@ -572,7 +572,7 @@ type PublicSettingsQuery struct {
 //	@Accept			json
 //	@Produce		json
 //	@Param			params	query		handler.PublicSettingsQuery	false	"查询参数"
-//	@Success		200		{object}	response.DataResponse[[]setting.PublicSettingsCategoryDTO]	"公开配置列表"
+//	@Success		200		{object}	response.DataResponse[[]setting.PublicSettingItemDTO]	"公开配置列表"
 //	@Failure		404		{object}	response.ErrorResponse	"分类不存在"
 //	@Failure		500		{object}	response.ErrorResponse	"服务器内部错误"
 //	@Router			/api/public/settings [get]

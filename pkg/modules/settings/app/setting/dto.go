@@ -78,9 +78,17 @@ type CreateResultDTO struct {
 
 // ==================== Settings DTO ====================
 
-// SettingsItemDTO Settings API 专用 DTO（Admin/User 统一）
+// SettingsItemDTO Settings API 专用 DTO（Admin/User 统一，扁平结构）
+//
+// 扁平结构优势：
+//   - 前端可自由组织展示方式
+//   - 易于搜索/过滤单个配置项
+//   - 支持分页
+//   - Team 场景可携带继承信息
 type SettingsItemDTO struct {
 	Key            string      `json:"key"`
+	Category       string      `json:"category"`        // 分类 Key（前端按需分组）
+	Group          string      `json:"group"`           // 分组名称
 	Value          any         `json:"value"`           // 实际生效值
 	DefaultValue   any         `json:"default_value"`   // 系统默认值
 	IsCustomized   bool        `json:"is_customized"`   // 是否用户自定义
@@ -94,20 +102,6 @@ type SettingsItemDTO struct {
 	UIConfig       UIConfigDTO `json:"ui_config"`            // hint/options/depends_on
 }
 
-// SettingsGroupDTO Settings API 分组
-type SettingsGroupDTO struct {
-	Name     string            `json:"name"` // 分组名称（如 "基本设置"）
-	Settings []SettingsItemDTO `json:"settings"`
-}
-
-// SettingsCategoryDTO Settings API 分类
-type SettingsCategoryDTO struct {
-	Category string             `json:"category"`
-	Label    string             `json:"label"`
-	Icon     string             `json:"icon"`
-	Groups   []SettingsGroupDTO `json:"groups"`
-}
-
 // ==================== Public Settings DTO ====================
 
 // PublicSettingItemDTO 公开设置项 DTO（精简版，不含敏感字段）
@@ -115,19 +109,6 @@ type PublicSettingItemDTO struct {
 	Key   string `json:"key"`
 	Value any    `json:"value"`
 	Label string `json:"label"`
-}
-
-// PublicSettingsGroupDTO 公开设置分组
-type PublicSettingsGroupDTO struct {
-	Name     string                 `json:"name"`
-	Settings []PublicSettingItemDTO `json:"settings"`
-}
-
-// PublicSettingsCategoryDTO 公开设置分类
-type PublicSettingsCategoryDTO struct {
-	Category string                   `json:"category"`
-	Label    string                   `json:"label"`
-	Groups   []PublicSettingsGroupDTO `json:"groups"`
 }
 
 // ==================== 分组聚合 DTO ====================

@@ -124,7 +124,9 @@ func ToSettingListDTO(settings []*setting.Setting) []SettingDTO {
 }
 
 // ToSettingsItemDTO 将 Setting 转换为 SettingsItemDTO（Admin 场景，包含全部字段）
-func ToSettingsItemDTO(s *setting.Setting) *SettingsItemDTO {
+//
+// categoryKey: 分类 Key（从 Category 实体获取）
+func ToSettingsItemDTO(s *setting.Setting, categoryKey string) *SettingsItemDTO {
 	if s == nil {
 		return nil
 	}
@@ -135,8 +137,16 @@ func ToSettingsItemDTO(s *setting.Setting) *SettingsItemDTO {
 		inputType = "text"
 	}
 
+	// 设置默认 Group
+	group := s.Group
+	if group == "" {
+		group = "default"
+	}
+
 	return &SettingsItemDTO{
 		Key:            s.Key,
+		Category:       categoryKey,
+		Group:          group,
 		Value:          s.DefaultValue,
 		DefaultValue:   s.DefaultValue,
 		IsCustomized:   false,
@@ -194,7 +204,9 @@ func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingD
 // User 场景现在也返回 VisibleAt 和 ConfigurableAt 字段：
 //   - VisibleAt: 前端根据此字段判断可见性
 //   - ConfigurableAt: 前端根据此字段判断可编辑性
-func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting) *SettingsItemDTO {
+//
+// categoryKey: 分类 Key（从 Category 实体获取）
+func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting, categoryKey string) *SettingsItemDTO {
 	if s == nil {
 		return nil
 	}
@@ -205,8 +217,16 @@ func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting) *Setting
 		inputType = "text"
 	}
 
+	// 设置默认 Group
+	group := s.Group
+	if group == "" {
+		group = "default"
+	}
+
 	dto := &SettingsItemDTO{
 		Key:            s.Key,
+		Category:       categoryKey,
+		Group:          group,
 		Value:          s.DefaultValue, // 默认使用系统默认值
 		DefaultValue:   s.DefaultValue,
 		IsCustomized:   false,

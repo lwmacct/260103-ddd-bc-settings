@@ -29,7 +29,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取按 Category → Group → Settings 层级组织的配置数据，用于前端动态渲染设置页面。支持按分类过滤（懒加载）。",
+                "description": "获取配置数据，扁平结构（每个 item 包含 category 和 group 字段供前端分组）。支持按分类过滤（懒加载）。",
                 "consumes": [
                     "application/json"
                 ],
@@ -49,9 +49,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "配置列表（层级结构）",
+                        "description": "配置列表（扁平结构）",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_SettingsCategoryDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_SettingsItemDTO"
                         }
                     },
                     "401": {
@@ -712,7 +712,7 @@ const docTemplate = `{
                     "200": {
                         "description": "公开配置列表",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse-array_setting_PublicSettingsCategoryDTO"
+                            "$ref": "#/definitions/response.DataResponse-array_setting_PublicSettingItemDTO"
                         }
                     },
                     "404": {
@@ -879,7 +879,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-array_setting_PublicSettingsCategoryDTO": {
+        "response.DataResponse-array_setting_PublicSettingItemDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -890,7 +890,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/setting.PublicSettingsCategoryDTO"
+                        "$ref": "#/definitions/setting.PublicSettingItemDTO"
                     }
                 },
                 "error": {
@@ -902,7 +902,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.DataResponse-array_setting_SettingsCategoryDTO": {
+        "response.DataResponse-array_setting_SettingsItemDTO": {
             "type": "object",
             "properties": {
                 "code": {
@@ -913,7 +913,7 @@ const docTemplate = `{
                     "description": "响应数据",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/setting.SettingsCategoryDTO"
+                        "$ref": "#/definitions/setting.SettingsItemDTO"
                     }
                 },
                 "error": {
@@ -1052,37 +1052,6 @@ const docTemplate = `{
                 "value": {}
             }
         },
-        "setting.PublicSettingsCategoryDTO": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.PublicSettingsGroupDTO"
-                    }
-                },
-                "label": {
-                    "type": "string"
-                }
-            }
-        },
-        "setting.PublicSettingsGroupDTO": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.PublicSettingItemDTO"
-                    }
-                }
-            }
-        },
         "setting.SelectOptionDTO": {
             "type": "object",
             "properties": {
@@ -1152,50 +1121,23 @@ const docTemplate = `{
                 }
             }
         },
-        "setting.SettingsCategoryDTO": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.SettingsGroupDTO"
-                    }
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                }
-            }
-        },
-        "setting.SettingsGroupDTO": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "description": "分组名称（如 \"基本设置\"）",
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/setting.SettingsItemDTO"
-                    }
-                }
-            }
-        },
         "setting.SettingsItemDTO": {
             "type": "object",
             "properties": {
+                "category": {
+                    "description": "分类 Key（前端按需分组）",
+                    "type": "string"
+                },
                 "configurable_at": {
                     "description": "最大可配置级别",
                     "type": "string"
                 },
                 "default_value": {
                     "description": "系统默认值"
+                },
+                "group": {
+                    "description": "分组名称",
+                    "type": "string"
                 },
                 "input_type": {
                     "description": "控件类型",

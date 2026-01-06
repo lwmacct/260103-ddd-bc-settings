@@ -53,13 +53,13 @@ func NewSettingsCacheService(client *redis.Client, keyPrefix string) setting.Set
 // =========================================================================
 
 // GetUserSettings 获取用户 Settings 缓存。
-func (s *settingsCacheService) GetUserSettings(ctx context.Context, userID uint, categoryKey string) ([]setting.SettingsCategoryDTO, error) {
+func (s *settingsCacheService) GetUserSettings(ctx context.Context, userID uint, categoryKey string) ([]setting.SettingsItemDTO, error) {
 	key := s.buildUserKey(userID, categoryKey)
 	return s.get(ctx, key)
 }
 
 // SetUserSettings 设置用户 Settings 缓存。
-func (s *settingsCacheService) SetUserSettings(ctx context.Context, userID uint, categoryKey string, settings []setting.SettingsCategoryDTO) error {
+func (s *settingsCacheService) SetUserSettings(ctx context.Context, userID uint, categoryKey string, settings []setting.SettingsItemDTO) error {
 	key := s.buildUserKey(userID, categoryKey)
 	return s.set(ctx, key, settings)
 }
@@ -81,13 +81,13 @@ func (s *settingsCacheService) DeleteUserSettingsAll(ctx context.Context, userID
 // =========================================================================
 
 // GetAdminSettings 获取管理员 Settings 缓存。
-func (s *settingsCacheService) GetAdminSettings(ctx context.Context, categoryKey string) ([]setting.SettingsCategoryDTO, error) {
+func (s *settingsCacheService) GetAdminSettings(ctx context.Context, categoryKey string) ([]setting.SettingsItemDTO, error) {
 	key := s.buildAdminKey(categoryKey)
 	return s.get(ctx, key)
 }
 
 // SetAdminSettings 设置管理员 Settings 缓存。
-func (s *settingsCacheService) SetAdminSettings(ctx context.Context, categoryKey string, settings []setting.SettingsCategoryDTO) error {
+func (s *settingsCacheService) SetAdminSettings(ctx context.Context, categoryKey string, settings []setting.SettingsItemDTO) error {
 	key := s.buildAdminKey(categoryKey)
 	return s.set(ctx, key, settings)
 }
@@ -109,13 +109,13 @@ func (s *settingsCacheService) DeleteAdminSettingsAll(ctx context.Context) error
 // =========================================================================
 
 // GetPublicSettings 获取公开 Settings 缓存。
-func (s *settingsCacheService) GetPublicSettings(ctx context.Context, categoryKey string) ([]setting.PublicSettingsCategoryDTO, error) {
+func (s *settingsCacheService) GetPublicSettings(ctx context.Context, categoryKey string) ([]setting.PublicSettingItemDTO, error) {
 	key := s.buildPublicKey(categoryKey)
 	return s.getPublic(ctx, key)
 }
 
 // SetPublicSettings 设置公开 Settings 缓存。
-func (s *settingsCacheService) SetPublicSettings(ctx context.Context, categoryKey string, settings []setting.PublicSettingsCategoryDTO) error {
+func (s *settingsCacheService) SetPublicSettings(ctx context.Context, categoryKey string, settings []setting.PublicSettingItemDTO) error {
 	key := s.buildPublicKey(categoryKey)
 	return s.setPublic(ctx, key, settings)
 }
@@ -293,7 +293,7 @@ func (s *settingsCacheService) buildCategoriesKey(scope string) string {
 }
 
 // get 通用获取缓存方法（使用 RedisJSON）。
-func (s *settingsCacheService) get(ctx context.Context, key string) ([]setting.SettingsCategoryDTO, error) {
+func (s *settingsCacheService) get(ctx context.Context, key string) ([]setting.SettingsItemDTO, error) {
 	// 使用 JSON.GET 命令读取
 	data, err := s.client.JSONGet(ctx, key, "$").Result()
 	if err != nil {
@@ -305,7 +305,7 @@ func (s *settingsCacheService) get(ctx context.Context, key string) ([]setting.S
 
 	// JSON.GET $ 返回数组包装：[actual_data]
 	// 需要解包外层数组
-	var wrapper [][]setting.SettingsCategoryDTO
+	var wrapper [][]setting.SettingsItemDTO
 	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		// 缓存数据损坏，删除并返回未命中
 		_ = s.client.Del(ctx, key)
@@ -327,7 +327,7 @@ func (s *settingsCacheService) get(ctx context.Context, key string) ([]setting.S
 }
 
 // set 通用设置缓存方法（使用 RedisJSON）。
-func (s *settingsCacheService) set(ctx context.Context, key string, settings []setting.SettingsCategoryDTO) error {
+func (s *settingsCacheService) set(ctx context.Context, key string, settings []setting.SettingsItemDTO) error {
 	// 使用 Pipeline 执行 JSON.SET + EXPIRE
 	pipe := s.client.Pipeline()
 	pipe.JSONSet(ctx, key, "$", settings)
@@ -381,7 +381,7 @@ func (s *settingsCacheService) setCategories(ctx context.Context, key string, ca
 }
 
 // getPublic 获取公开 Settings 缓存（使用 RedisJSON）。
-func (s *settingsCacheService) getPublic(ctx context.Context, key string) ([]setting.PublicSettingsCategoryDTO, error) {
+func (s *settingsCacheService) getPublic(ctx context.Context, key string) ([]setting.PublicSettingItemDTO, error) {
 	data, err := s.client.JSONGet(ctx, key, "$").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -391,7 +391,7 @@ func (s *settingsCacheService) getPublic(ctx context.Context, key string) ([]set
 	}
 
 	// JSON.GET $ 返回数组包装：[actual_data]
-	var wrapper [][]setting.PublicSettingsCategoryDTO
+	var wrapper [][]setting.PublicSettingItemDTO
 	if err := json.Unmarshal([]byte(data), &wrapper); err != nil {
 		_ = s.client.Del(ctx, key)
 		slog.Warn("corrupted public settings cache, deleted", "key", key, "error", err.Error())
@@ -406,7 +406,7 @@ func (s *settingsCacheService) getPublic(ctx context.Context, key string) ([]set
 }
 
 // setPublic 设置公开 Settings 缓存（使用 RedisJSON）。
-func (s *settingsCacheService) setPublic(ctx context.Context, key string, settings []setting.PublicSettingsCategoryDTO) error {
+func (s *settingsCacheService) setPublic(ctx context.Context, key string, settings []setting.PublicSettingItemDTO) error {
 	pipe := s.client.Pipeline()
 	pipe.JSONSet(ctx, key, "$", settings)
 	pipe.Expire(ctx, key, settingsCacheTTL)

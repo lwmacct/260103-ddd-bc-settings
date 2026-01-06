@@ -20,10 +20,10 @@ type SettingsCacheService interface {
 	// =========================================================================
 
 	// GetUserSettings 获取用户 Settings 缓存。
-	GetUserSettings(ctx context.Context, userID uint, categoryKey string) ([]SettingsCategoryDTO, error)
+	GetUserSettings(ctx context.Context, userID uint, categoryKey string) ([]SettingsItemDTO, error)
 
 	// SetUserSettings 设置用户 Settings 缓存。
-	SetUserSettings(ctx context.Context, userID uint, categoryKey string, settings []SettingsCategoryDTO) error
+	SetUserSettings(ctx context.Context, userID uint, categoryKey string, settings []SettingsItemDTO) error
 
 	// DeleteUserSettings 删除用户的指定 category Settings 缓存。
 	DeleteUserSettings(ctx context.Context, userID uint, categoryKey string) error
@@ -36,10 +36,10 @@ type SettingsCacheService interface {
 	// =========================================================================
 
 	// GetAdminSettings 获取管理员 Settings 缓存。
-	GetAdminSettings(ctx context.Context, categoryKey string) ([]SettingsCategoryDTO, error)
+	GetAdminSettings(ctx context.Context, categoryKey string) ([]SettingsItemDTO, error)
 
 	// SetAdminSettings 设置管理员 Settings 缓存。
-	SetAdminSettings(ctx context.Context, categoryKey string, settings []SettingsCategoryDTO) error
+	SetAdminSettings(ctx context.Context, categoryKey string, settings []SettingsItemDTO) error
 
 	// DeleteAdminSettings 删除管理员的指定 category Settings 缓存。
 	DeleteAdminSettings(ctx context.Context, categoryKey string) error
@@ -53,10 +53,10 @@ type SettingsCacheService interface {
 
 	// GetPublicSettings 获取公开 Settings 缓存。
 	// Key 格式：{prefix}settings:public:{categoryKey}
-	GetPublicSettings(ctx context.Context, categoryKey string) ([]PublicSettingsCategoryDTO, error)
+	GetPublicSettings(ctx context.Context, categoryKey string) ([]PublicSettingItemDTO, error)
 
 	// SetPublicSettings 设置公开 Settings 缓存。
-	SetPublicSettings(ctx context.Context, categoryKey string, settings []PublicSettingsCategoryDTO) error
+	SetPublicSettings(ctx context.Context, categoryKey string, settings []PublicSettingItemDTO) error
 
 	// DeletePublicSettings 删除公开的指定 category Settings 缓存。
 	DeletePublicSettings(ctx context.Context, categoryKey string) error
