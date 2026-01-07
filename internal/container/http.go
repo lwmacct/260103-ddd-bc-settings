@@ -15,7 +15,7 @@ import (
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
 	settingsroutes "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/routes"
 	settingsconfig "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
-	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
+	ginroutes "github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
 )
 
 // HTTPModule 提供 HTTP 处理器和路由注册。
@@ -59,17 +59,20 @@ func registerRoutes(
 
 	// 注册路由到 Gin Engine
 	for _, route := range allRoutes {
+		// 将 OpenAPI 风格路径参数 {param} 转换为 Gin 风格 :param
+		ginPath := ginroutes.ToGinPath(route.Path)
+
 		switch route.Method {
-		case routes.GET:
-			r.GET(route.Path, route.Handlers...)
-		case routes.POST:
-			r.POST(route.Path, route.Handlers...)
-		case routes.PUT:
-			r.PUT(route.Path, route.Handlers...)
-		case routes.DELETE:
-			r.DELETE(route.Path, route.Handlers...)
-		case routes.PATCH:
-			r.PATCH(route.Path, route.Handlers...)
+		case ginroutes.GET:
+			r.GET(ginPath, route.Handlers...)
+		case ginroutes.POST:
+			r.POST(ginPath, route.Handlers...)
+		case ginroutes.PUT:
+			r.PUT(ginPath, route.Handlers...)
+		case ginroutes.DELETE:
+			r.DELETE(ginPath, route.Handlers...)
+		case ginroutes.PATCH:
+			r.PATCH(ginPath, route.Handlers...)
 		}
 	}
 }

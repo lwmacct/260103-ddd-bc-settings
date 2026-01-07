@@ -30,7 +30,7 @@ func Admin(
 		{
 			Handlers:    []gin.HandlerFunc{settingHandler.GetCategory},
 			Method:      routes.GET,
-			Path:        buildPath(base, "/categories/:id"),
+			Path:        buildPath(base, "/categories/{id}"),
 			OperationID: "admin:setting:categories:get",
 			Tags:        []string{"Admin - Settings"},
 			Summary:     "配置分类详情",
@@ -48,7 +48,7 @@ func Admin(
 		{
 			Handlers:    []gin.HandlerFunc{settingHandler.UpdateCategory},
 			Method:      routes.PUT,
-			Path:        buildPath(base, "/categories/:id"),
+			Path:        buildPath(base, "/categories/{id}"),
 			OperationID: "admin:setting:categories:update",
 			Tags:        []string{"Admin - Settings"},
 			Summary:     "更新配置分类",
@@ -57,7 +57,7 @@ func Admin(
 		{
 			Handlers:    []gin.HandlerFunc{settingHandler.DeleteCategory},
 			Method:      routes.DELETE,
-			Path:        buildPath(base, "/categories/:id"),
+			Path:        buildPath(base, "/categories/{id}"),
 			OperationID: "admin:setting:categories:delete",
 			Tags:        []string{"Admin - Settings"},
 			Summary:     "删除配置分类",
@@ -97,7 +97,7 @@ func Admin(
 		{
 			Handlers:    []gin.HandlerFunc{settingHandler.GetSetting},
 			Method:      routes.GET,
-			Path:        buildPath(base, "/:key"),
+			Path:        buildPath(base, "/{key}"),
 			OperationID: "admin:settings:get",
 			Tags:        []string{"Admin - Settings"},
 			Summary:     "配置详情",
@@ -106,7 +106,7 @@ func Admin(
 		{
 			Handlers:    []gin.HandlerFunc{settingHandler.UpdateSetting},
 			Method:      routes.PUT,
-			Path:        buildPath(base, "/:key"),
+			Path:        buildPath(base, "/{key}"),
 			OperationID: "admin:settings:update",
 			Tags:        []string{"Admin - Settings"},
 			Summary:     "更新配置",
@@ -115,7 +115,7 @@ func Admin(
 		{
 			Handlers:    []gin.HandlerFunc{settingHandler.DeleteSetting},
 			Method:      routes.DELETE,
-			Path:        buildPath(base, "/:key"),
+			Path:        buildPath(base, "/{key}"),
 			OperationID: "admin:settings:delete",
 			Tags:        []string{"Admin - Settings"},
 			Summary:     "删除配置",

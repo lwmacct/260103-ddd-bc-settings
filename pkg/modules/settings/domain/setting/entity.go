@@ -77,24 +77,24 @@ func compareScopeLevel(a, b ScopeLevel) int {
 // Validation 存储自定义 JSON Logic 规则，用于业务级增强校验。
 // UIConfig 存储前端展示配置：hint（提示）、options（下拉选项）、depends_on（依赖关系）。
 type Setting struct {
-	ID             uint   // 唯一标识
-	Key            string // 配置键，唯一约束
-	DefaultValue   any    // 默认值（JSONB 原生值）
-	VisibleAt      string // 可见权限级别：system | org | team | user | public
-	ConfigurableAt string // 最大可配置级别：system | org | team | user
-	CategoryID     uint   // 外键关联 SettingCategory.ID
-	Group          string // 分组显示标签：基本设置, 本地化 等（直接存 label，空字符串表示无分组）
-	ValueType      string // 值类型：string, number, boolean, json（用于类型校验）
-	Label          string // 显示标签
-	Order          int    // 排序权重（小的在前）
+	ID             uint   `json:"id"`              // 唯一标识
+	Key            string `json:"key"`             // 配置键，唯一约束
+	DefaultValue   any    `json:"default_value"`   // 默认值（JSONB 原生值）
+	VisibleAt      string `json:"visible_at"`      // 可见权限级别：system | org | team | user | public
+	ConfigurableAt string `json:"configurable_at"` // 最大可配置级别：system | org | team | user
+	CategoryID     uint   `json:"category_id"`     // 外键关联 SettingCategory.ID
+	Group          string `json:"group"`           // 分组显示标签：基本设置, 本地化 等（直接存 label，空字符串表示无分组）
+	ValueType      string `json:"value_type"`      // 值类型：string, number, boolean, json（用于类型校验）
+	Label          string `json:"label"`           // 显示标签
+	Order          int    `json:"order"`           // 排序权重（小的在前）
 
 	// UI 配置
-	InputType  string // 控件类型：text, email, url, password, select 等（决定自动校验规则）
-	Validation string // 自定义校验规则（JSON Logic 格式）
-	UIConfig   string // 前端展示配置：hint、options、depends_on（JSONB 字符串）
+	InputType  string `json:"input_type"` // 控件类型：text, email, url, password, select 等（决定自动校验规则）
+	Validation string `json:"validation"` // 自定义校验规则（JSON Logic 格式）
+	UIConfig   string `json:"ui_config"`  // 前端展示配置：hint、options、depends_on（JSONB 字符串）
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // =============================================================================

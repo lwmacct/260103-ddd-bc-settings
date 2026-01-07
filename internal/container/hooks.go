@@ -10,8 +10,8 @@ import (
 
 	persistence "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/seeds"
+	dbpkg "github.com/lwmacct/260103-ddd-shared/pkg/platform/db"
 )
-
 
 // GetAllModels 返回所有需要迁移的 Model。
 func GetAllModels() []interface{} {
@@ -29,6 +29,16 @@ func RunMigration(lc fx.Lifecycle, db *gorm.DB) error {
 
 			// 执行 AutoMigrate
 			if err := db.AutoMigrate(GetAllModels()...); err != nil {
+				return err
+			}
+
+			// 创建 Settings 索引
+			if err := dbpkg.CreateIndexes(db, &persistence.SettingModel{}, []string{
+				"idx_settings_category_sort",
+				"idx_settings_visible_at",
+				"idx_settings_configurable_at",
+				"idx_settings_visible_configurable",
+			}); err != nil {
 				return err
 			}
 
@@ -80,4 +90,3 @@ func RunSeed(lc fx.Lifecycle, db *gorm.DB) error {
 	})
 	return nil
 }
-
