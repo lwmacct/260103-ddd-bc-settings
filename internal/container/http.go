@@ -30,7 +30,7 @@ var HTTPModule = fx.Module("http",
 // registerRoutes 注册 Settings 模块的路由。
 func registerRoutes(
 	r *gin.Engine,
-	settingHandler *handler.SettingHandler,
+	handlers *handler.Handlers,
 	settingsCfg *settingsconfig.Config,
 ) {
 	// 添加自定义 panic recovery 中间件（在 Gin 默认 recovery 之前）
@@ -50,7 +50,7 @@ func registerRoutes(
 	})
 
 	// 获取所有 Settings 路由（包含 Admin 和 Public）
-	allRoutes := settingsroutes.AllRouteBindings(settingHandler, settingsCfg)
+	allRoutes := settingsroutes.AllRouteBindings(handlers.Setting, settingsCfg)
 
 	slog.Info("Registering routes",
 		"count", len(allRoutes),
