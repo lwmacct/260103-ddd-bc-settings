@@ -14,6 +14,7 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
+	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/routes"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/cache"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
@@ -46,5 +47,6 @@ func Module() fx.Option {
 
 		// 适配器层
 		handler.HandlerModule,
+		routes.RoutesModule,
 	)
 }

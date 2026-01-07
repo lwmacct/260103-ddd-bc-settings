@@ -12,16 +12,26 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
-	settingsroutes "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/routes"
-	settingsconfig "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
 	ginroutes "github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
 )
+
+// AllRoutesParams 注入 Settings 模块路由
+type AllRoutesParams struct {
+	fx.In
+
+	SettingsRoutes []ginroutes.Route `name:"settings"`
+}
+
+// AllRoutes 返回 Settings 模块路由
+func AllRoutes(p AllRoutesParams) []ginroutes.Route {
+	return p.SettingsRoutes
+}
 
 // HTTPModule 提供 HTTP 处理器和路由注册。
 var HTTPModule = fx.Module("http",
 	fx.Provide(
 		gin.Default,
+		AllRoutes,
 	),
 	fx.Invoke(registerRoutes),
 	fx.Invoke(startHTTPServer),
@@ -30,8 +40,7 @@ var HTTPModule = fx.Module("http",
 // registerRoutes 注册 Settings 模块的路由。
 func registerRoutes(
 	r *gin.Engine,
-	handlers *handler.Handlers,
-	settingsCfg *settingsconfig.Config,
+	allRoutes []ginroutes.Route,
 ) {
 	// 添加自定义 panic recovery 中间件（在 Gin 默认 recovery 之前）
 	r.Use(func(c *gin.Context) {
@@ -49,13 +58,7 @@ func registerRoutes(
 		c.Next()
 	})
 
-	// 获取所有 Settings 路由（包含 Admin 和 Public）
-	allRoutes := settingsroutes.AllRouteBindings(handlers.Setting, settingsCfg)
-
-	slog.Info("Registering routes",
-		"count", len(allRoutes),
-		"basePath", settingsCfg.HTTP.BasePath,
-	)
+	slog.Info("Registering routes", "count", len(allRoutes))
 
 	// 注册路由到 Gin Engine
 	for _, route := range allRoutes {
