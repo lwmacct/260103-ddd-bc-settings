@@ -713,8 +713,8 @@ func TestSetting_IsSystemScope(t *testing.T) {
 		scope string
 		want  bool
 	}{
-		{"system scope", ScopeSystem, true},
-		{"user scope", ScopeUser, false},
+		{"system scope", string(ScopeLevelSystem), true},
+		{"user scope", string(ScopeLevelUser), false},
 		{"invalid scope", "invalid", false},
 	}
 
@@ -732,10 +732,10 @@ func TestSetting_IsUserScope(t *testing.T) {
 		scope string
 		want  bool
 	}{
-		{"user scope", ScopeUser, true},
-		{"system scope", ScopeSystem, false},
-		{"org scope", ScopeOrg, false},
-		{"team scope", ScopeTeam, false},
+		{"user scope", string(ScopeLevelUser), true},
+		{"system scope", string(ScopeLevelSystem), false},
+		{"org scope", string(ScopeLevelOrg), false},
+		{"team scope", string(ScopeLevelTeam), false},
 		{"invalid scope", "invalid", false},
 	}
 
@@ -753,10 +753,10 @@ func TestSetting_IsOrgScope(t *testing.T) {
 		scope string
 		want  bool
 	}{
-		{"org scope", ScopeOrg, true},
-		{"system scope", ScopeSystem, false},
-		{"user scope", ScopeUser, false},
-		{"team scope", ScopeTeam, false},
+		{"org scope", string(ScopeLevelOrg), true},
+		{"system scope", string(ScopeLevelSystem), false},
+		{"user scope", string(ScopeLevelUser), false},
+		{"team scope", string(ScopeLevelTeam), false},
 		{"invalid scope", "invalid", false},
 	}
 
@@ -774,10 +774,10 @@ func TestSetting_IsTeamScope(t *testing.T) {
 		scope string
 		want  bool
 	}{
-		{"team scope", ScopeTeam, true},
-		{"system scope", ScopeSystem, false},
-		{"org scope", ScopeOrg, false},
-		{"user scope", ScopeUser, false},
+		{"team scope", string(ScopeLevelTeam), true},
+		{"system scope", string(ScopeLevelSystem), false},
+		{"org scope", string(ScopeLevelOrg), false},
+		{"user scope", string(ScopeLevelUser), false},
 		{"invalid scope", "invalid", false},
 	}
 

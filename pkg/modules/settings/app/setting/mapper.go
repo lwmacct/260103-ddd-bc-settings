@@ -1,8 +1,6 @@
 package setting
 
 import (
-	"encoding/json"
-
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
 
@@ -42,39 +40,6 @@ func ToCategoryListDTO(categories []*setting.SettingCategory) []CategoryDTO {
 }
 
 // ==================== Setting Mappers ====================
-
-// uiConfigRaw 内部结构用于解析 UIConfig JSONB
-type uiConfigRaw struct {
-	Hint      string              `json:"hint"`
-	Options   []SelectOptionDTO   `json:"options"`
-	DependsOn *DependsOnConfigDTO `json:"depends_on"`
-}
-
-// parseUIConfig 解析 UIConfig JSON 字符串
-func parseUIConfig(jsonStr string) UIConfigDTO {
-	if jsonStr == "" || jsonStr == "{}" {
-		return UIConfigDTO{}
-	}
-
-	var raw uiConfigRaw
-	if err := json.Unmarshal([]byte(jsonStr), &raw); err != nil {
-		return UIConfigDTO{}
-	}
-
-	return UIConfigDTO(raw)
-}
-
-// parseValidation 解析 Validation 字符串为 any 类型
-func parseValidation(validation string) any {
-	if validation == "" {
-		return nil
-	}
-	var result any
-	if err := json.Unmarshal([]byte(validation), &result); err != nil {
-		return nil
-	}
-	return result
-}
 
 // ToSettingDTO 将 Setting 实体转换为 SettingDTO
 func ToSettingDTO(s *setting.Setting) *SettingDTO {
@@ -261,17 +226,3 @@ func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting, category
 	return dto
 }
 */
-
-// toCategoryMetaDTOs 将 SettingCategory 实体列表转换为 CategoryMetaDTO 列表。
-func toCategoryMetaDTOs(categories []*setting.SettingCategory) []CategoryMetaDTO {
-	result := make([]CategoryMetaDTO, 0, len(categories))
-	for _, cat := range categories {
-		result = append(result, CategoryMetaDTO{
-			Category: cat.Key,
-			Label:    cat.Label,
-			Icon:     cat.Icon,
-			Order:    cat.Order,
-		})
-	}
-	return result
-}

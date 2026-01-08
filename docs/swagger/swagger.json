@@ -80,7 +80,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "管理员创建新的系统配置项",
+                "description": "管理员创建新的系统配置项。配置键必须唯一，支持多种值类型（string/number/boolean/json）。\n创建后需指定配置分类和可见性级别（system/org/team/user/public）。",
                 "consumes": [
                     "application/json"
                 ],
@@ -143,7 +143,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "管理员批量更新多个系统配置项的值",
+                "description": "管理员批量更新多个系统配置项的值。用于配置管理页面批量保存场景。\n原子操作：全部成功或全部失败。更新后会自动失效相关缓存。",
                 "consumes": [
                     "application/json"
                 ],
@@ -206,7 +206,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取所有配置分类，按排序权重升序排列",
+                "description": "获取所有配置分类，按排序权重升序排列。分类用于组织配置项，便于前端分组展示。\n返回分类的 Key、Label、Icon、Order 等元数据，不含配置项详情。",
                 "consumes": [
                     "application/json"
                 ],
@@ -313,7 +313,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "根据 ID 获取配置分类详情",
+                "description": "根据 ID 获取配置分类详情。返回分类的完整元数据。\n分类 Key 是配置项的分组依据，创建配置时需指定有效的分类 ID。",
                 "consumes": [
                     "application/json"
                 ],
@@ -366,7 +366,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "管理员更新指定配置分类的信息（Key 不可修改）",
+                "description": "管理员更新指定配置分类的信息（Key 不可修改）。\n仅支持更新 Label、Icon、Order 等展示字段。更新后自动失效分类缓存。",
                 "consumes": [
                     "application/json"
                 ],
@@ -440,7 +440,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "管理员删除指定的配置分类（如有关联配置项则拒绝删除）",
+                "description": "管理员删除指定的配置分类。如有关联配置项则拒绝删除，需先移除或删除所有关联配置。\n删除操作不可逆，请谨慎操作。删除后自动失效分类缓存。",
                 "consumes": [
                     "application/json"
                 ],
@@ -504,7 +504,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "根据配置键获取配置详情",
+                "description": "根据配置键获取配置详情，返回完整的配置元数据（包括类型、验证规则、UI 配置等）。\n前端可根据此接口获取配置的完整定义，用于渲染配置表单。",
                 "consumes": [
                     "application/json"
                 ],
@@ -512,7 +512,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "settings"
+                    "admin-settings"
                 ],
                 "summary": "配置详情",
                 "parameters": [
@@ -557,7 +557,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "管理员更新指定配置项的值和标签",
+                "description": "管理员更新指定配置项的值和标签。更新后会自动失效相关缓存，确保前端获取最新配置。\n支持部分更新，只更新提供的字段。配置键、分类等核心字段不可修改。",
                 "consumes": [
                     "application/json"
                 ],
@@ -684,7 +684,7 @@
         },
         "/api/public/settings": {
             "get": {
-                "description": "获取公开可见的配置数据（VisibleAt=\"public\"），用于前端展示站点信息等。无需认证。",
+                "description": "获取公开可见的配置数据（VisibleAt=\"public\"），用于前端展示站点信息等。无需认证。\n支持按分类过滤，返回扁平结构供前端自由分组展示。\n典型场景：站点名称、Logo、联系信息等公开信息展示。",
                 "consumes": [
                     "application/json"
                 ],

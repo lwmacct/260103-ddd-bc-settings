@@ -117,8 +117,9 @@ type ListSettingsQuery struct {
 // GetSetting 获取单个配置
 //
 //	@Summary		配置详情
-//	@Description	根据配置键获取配置详情
-//	@Tags			settings
+//	@Description	根据配置键获取配置详情，返回完整的配置元数据（包括类型、验证规则、UI 配置等）。
+//	@Description	前端可根据此接口获取配置的完整定义，用于渲染配置表单。
+//	@Tags			admin-settings
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
@@ -159,7 +160,8 @@ type CreateSettingRequest struct {
 // CreateSetting 创建配置
 //
 //	@Summary		创建配置
-//	@Description	管理员创建新的系统配置项
+//	@Description	管理员创建新的系统配置项。配置键必须唯一，支持多种值类型（string/number/boolean/json）。
+//	@Description	创建后需指定配置分类和可见性级别（system/org/team/user/public）。
 //	@Tags			settings
 //	@Accept			json
 //	@Produce		json
@@ -218,7 +220,8 @@ type UpdateSettingRequest struct {
 // UpdateSetting 更新配置
 //
 //	@Summary		更新配置
-//	@Description	管理员更新指定配置项的值和标签
+//	@Description	管理员更新指定配置项的值和标签。更新后会自动失效相关缓存，确保前端获取最新配置。
+//	@Description	支持部分更新，只更新提供的字段。配置键、分类等核心字段不可修改。
 //	@Tags			settings
 //	@Accept			json
 //	@Produce		json
@@ -304,7 +307,8 @@ type BatchUpdateSettingsRequest struct {
 // BatchUpdateSettings 批量更新配置
 //
 //	@Summary		批量更新配置
-//	@Description	管理员批量更新多个系统配置项的值
+//	@Description	管理员批量更新多个系统配置项的值。用于配置管理页面批量保存场景。
+//	@Description	原子操作：全部成功或全部失败。更新后会自动失效相关缓存。
 //	@Tags			settings
 //	@Accept			json
 //	@Produce		json
@@ -356,7 +360,8 @@ func (h *SettingHandler) BatchUpdateSettings(c *gin.Context) {
 // GetCategories 获取配置分类列表
 //
 //	@Summary		配置分类列表
-//	@Description	获取所有配置分类，按排序权重升序排列
+//	@Description	获取所有配置分类，按排序权重升序排列。分类用于组织配置项，便于前端分组展示。
+//	@Description	返回分类的 Key、Label、Icon、Order 等元数据，不含配置项详情。
 //	@Tags			categories
 //	@Accept			json
 //	@Produce		json
@@ -379,7 +384,8 @@ func (h *SettingHandler) GetCategories(c *gin.Context) {
 // GetCategory 获取单个配置分类
 //
 //	@Summary		配置分类详情
-//	@Description	根据 ID 获取配置分类详情
+//	@Description	根据 ID 获取配置分类详情。返回分类的完整元数据。
+//	@Description	分类 Key 是配置项的分组依据，创建配置时需指定有效的分类 ID。
 //	@Tags			categories
 //	@Accept			json
 //	@Produce		json
@@ -475,7 +481,8 @@ type UpdateCategoryRequest struct {
 // UpdateCategory 更新配置分类
 //
 //	@Summary		更新配置分类
-//	@Description	管理员更新指定配置分类的信息（Key 不可修改）
+//	@Description	管理员更新指定配置分类的信息（Key 不可修改）。
+//	@Description	仅支持更新 Label、Icon、Order 等展示字段。更新后自动失效分类缓存。
 //	@Tags			categories
 //	@Accept			json
 //	@Produce		json
@@ -519,7 +526,8 @@ func (h *SettingHandler) UpdateCategory(c *gin.Context) {
 // DeleteCategory 删除配置分类
 //
 //	@Summary		删除配置分类
-//	@Description	管理员删除指定的配置分类（如有关联配置项则拒绝删除）
+//	@Description	管理员删除指定的配置分类。如有关联配置项则拒绝删除，需先移除或删除所有关联配置。
+//	@Description	删除操作不可逆，请谨慎操作。删除后自动失效分类缓存。
 //	@Tags			categories
 //	@Accept			json
 //	@Produce		json
@@ -568,6 +576,8 @@ type PublicSettingsQuery struct {
 //
 //	@Summary		公开配置列表
 //	@Description	获取公开可见的配置数据（VisibleAt="public"），用于前端展示站点信息等。无需认证。
+//	@Description	支持按分类过滤，返回扁平结构供前端自由分组展示。
+//	@Description	典型场景：站点名称、Logo、联系信息等公开信息展示。
 //	@Tags			public
 //	@Accept			json
 //	@Produce		json
