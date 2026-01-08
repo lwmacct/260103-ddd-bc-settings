@@ -45,17 +45,17 @@ var UseCaseModule = fx.Module("settings.usecase",
 
 // newSettingUseCases 创建 Setting UseCase 聚合。
 func newSettingUseCases(repos persistence.SettingRepositories, settingsCache SettingsCacheService) *SettingUseCases {
-	// Command Handlers
-	createHandler := NewCreateHandler(repos.Command, repos.Query, nil)
-	updateHandler := NewUpdateHandler(repos.Command, repos.Query, nil)
-	deleteHandler := NewDeleteHandler(repos.Command, repos.Query, nil)
-	batchUpdateHandler := NewBatchUpdateHandler(repos.Command, repos.Query, nil)
+	// Command Handlers（缓存失效由 Repository 装饰器自动处理）
+	createHandler := NewCreateHandler(repos.Command, repos.Query)
+	updateHandler := NewUpdateHandler(repos.Command, repos.Query)
+	deleteHandler := NewDeleteHandler(repos.Command, repos.Query)
+	batchUpdateHandler := NewBatchUpdateHandler(repos.Command, repos.Query)
 
-	// Query Handlers
+	// Query Handlers（需要缓存服务进行查询）
 	getHandler := NewGetHandler(repos.Query)
 	listHandler := NewListHandler(repos.Query)
 
-	// Category Handlers
+	// Category Handlers（暂时保留缓存失效逻辑，待后续优化）
 	createCategoryHandler := NewCreateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, settingsCache)
 	updateCategoryHandler := NewUpdateCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, settingsCache)
 	deleteCategoryHandler := NewDeleteCategoryHandler(repos.CategoryCommand, repos.CategoryQuery, repos.Query, settingsCache)

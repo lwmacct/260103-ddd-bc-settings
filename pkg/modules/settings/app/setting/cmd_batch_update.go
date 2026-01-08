@@ -3,7 +3,6 @@ package setting
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
@@ -12,19 +11,16 @@ import (
 type BatchUpdateHandler struct {
 	commandRepo   setting.CommandRepository
 	queryRepo     setting.QueryRepository
-	settingsCache SettingsCacheService
 }
 
 // NewBatchUpdateHandler 创建 BatchUpdateHandler 实例
 func NewBatchUpdateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
-	settingsCache SettingsCacheService,
 ) *BatchUpdateHandler {
 	return &BatchUpdateHandler{
 		commandRepo:   commandRepo,
 		queryRepo:     queryRepo,
-		settingsCache: settingsCache,
 	}
 }
 
@@ -65,16 +61,9 @@ func (h *BatchUpdateHandler) Handle(ctx context.Context, cmd BatchUpdateCommand)
 		settings = append(settings, existing)
 	}
 
-	// 5. 批量更新
+	// 5. 批量更新（Repository 装饰器会自动失效缓存）
 	if err := h.commandRepo.BatchUpsert(ctx, settings); err != nil {
 		return fmt.Errorf("failed to batch update settings: %w", err)
-	}
-
-	// 7. 失效 Settings 缓存
-	if h.settingsCache != nil {
-		if err := h.settingsCache.DeleteAdminSettingsAll(ctx); err != nil {
-			slog.Warn("admin settings cache invalidation failed after batch update", "error", err.Error())
-		}
 	}
 
 	return nil

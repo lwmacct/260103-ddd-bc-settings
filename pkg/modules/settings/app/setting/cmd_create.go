@@ -4,28 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
 
 // CreateHandler 创建配置命令处理器
 type CreateHandler struct {
-	commandRepo   setting.CommandRepository
-	queryRepo     setting.QueryRepository
-	settingsCache SettingsCacheService
+	commandRepo setting.CommandRepository
+	queryRepo   setting.QueryRepository
 }
 
 // NewCreateHandler 创建 CreateHandler 实例
 func NewCreateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
-	settingsCache SettingsCacheService,
 ) *CreateHandler {
 	return &CreateHandler{
-		commandRepo:   commandRepo,
-		queryRepo:     queryRepo,
-		settingsCache: settingsCache,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
 	}
 }
 
@@ -58,16 +54,9 @@ func (h *CreateHandler) Handle(ctx context.Context, cmd CreateCommand) (*CreateR
 		Order:        cmd.Order,
 	}
 
-	// 4. 保存配置定义
+	// 4. 保存配置定义（Repository 装饰器会自动失效缓存）
 	if err := h.commandRepo.Create(ctx, s); err != nil {
 		return nil, fmt.Errorf("failed to create setting: %w", err)
-	}
-
-	// 5. 失效 Settings 缓存
-	if h.settingsCache != nil {
-		if err := h.settingsCache.DeleteAdminSettingsAll(ctx); err != nil {
-			slog.Warn("admin settings cache invalidation failed", "key", cmd.Key, "error", err.Error())
-		}
 	}
 
 	return &CreateResultDTO{

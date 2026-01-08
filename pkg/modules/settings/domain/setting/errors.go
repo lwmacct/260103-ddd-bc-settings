@@ -9,8 +9,9 @@ var (
 	// ErrDefinitionKeyExists 配置定义键已存在
 	ErrDefinitionKeyExists = errors.New("setting key already exists")
 
-	// ErrUserSettingNotFound 用户配置不存在
-	ErrUserSettingNotFound = errors.New("user setting not found")
+	// ErrUserSettingNotFound 用户配置不存在（IAM 模块集成时启用）
+	// TODO: 与 IAM 模块集成时取消注释
+	// ErrUserSettingNotFound = errors.New("user setting not found")
 
 	// ErrInvalidValueType 无效的值类型
 	ErrInvalidValueType = errors.New("invalid value type")

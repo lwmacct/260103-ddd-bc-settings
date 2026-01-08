@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
@@ -13,19 +12,16 @@ import (
 type UpdateHandler struct {
 	commandRepo   setting.CommandRepository
 	queryRepo     setting.QueryRepository
-	settingsCache SettingsCacheService
 }
 
 // NewUpdateHandler 创建 UpdateHandler 实例
 func NewUpdateHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
-	settingsCache SettingsCacheService,
 ) *UpdateHandler {
 	return &UpdateHandler{
 		commandRepo:   commandRepo,
 		queryRepo:     queryRepo,
-		settingsCache: settingsCache,
 	}
 }
 
@@ -66,16 +62,9 @@ func (h *UpdateHandler) Handle(ctx context.Context, cmd UpdateCommand) (*Setting
 		def.Order = cmd.Order
 	}
 
-	// 6. 保存更新
+	// 6. 保存更新（Repository 装饰器会自动失效缓存）
 	if err := h.commandRepo.Update(ctx, def); err != nil {
 		return nil, fmt.Errorf("failed to update setting: %w", err)
-	}
-
-	// 7. 失效 Settings 缓存
-	if h.settingsCache != nil {
-		if err := h.settingsCache.DeleteAdminSettingsAll(ctx); err != nil {
-			slog.Warn("admin settings cache invalidation failed", "key", cmd.Key, "error", err.Error())
-		}
 	}
 
 	return ToSettingDTO(def), nil

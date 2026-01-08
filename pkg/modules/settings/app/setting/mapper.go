@@ -162,7 +162,19 @@ func ToSettingsItemDTO(s *setting.Setting, categoryKey string) *SettingsItemDTO 
 }
 
 // ==================== UserSetting Mappers ====================
+//
+// 以下函数为 IAM 模块集成预留，将在集成时启用
+//
+// TODO: 与 IAM 模块集成时取消注释
+// IAM 模块将提供 UserSetting 实体，Settings 模块通过以下函数合并 Setting 和 UserSetting
+//
+// 集成方式：
+// 1. IAM 模块导入 setting.Setting 实体
+// 2. IAM 模块查询 user_settings 表获取用户自定义值
+// 3. IAM 模块调用以下 mapper 函数合并 Setting 和 UserSetting
+// 4. IAM 模块的 ListSettingsHandler 返回合并后的 DTO
 
+/*
 // ToUserSettingDTO 将 Setting 定义和可选的 UserSetting 合并为 UserSettingDTO
 func ToUserSettingDTO(s *setting.Setting, us *setting.UserSetting) *UserSettingDTO {
 	if s == nil {
@@ -248,6 +260,7 @@ func ToUserSettingsItemDTO(s *setting.Setting, us *setting.UserSetting, category
 
 	return dto
 }
+*/
 
 // toCategoryMetaDTOs 将 SettingCategory 实体列表转换为 CategoryMetaDTO 列表。
 func toCategoryMetaDTOs(categories []*setting.SettingCategory) []CategoryMetaDTO {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
@@ -13,19 +12,16 @@ import (
 type DeleteHandler struct {
 	commandRepo   setting.CommandRepository
 	queryRepo     setting.QueryRepository
-	settingsCache SettingsCacheService
 }
 
 // NewDeleteHandler 创建 DeleteHandler 实例
 func NewDeleteHandler(
 	commandRepo setting.CommandRepository,
 	queryRepo setting.QueryRepository,
-	settingsCache SettingsCacheService,
 ) *DeleteHandler {
 	return &DeleteHandler{
 		commandRepo:   commandRepo,
 		queryRepo:     queryRepo,
-		settingsCache: settingsCache,
 	}
 }
 
@@ -40,16 +36,9 @@ func (h *DeleteHandler) Handle(ctx context.Context, cmd DeleteCommand) error {
 		return errors.New("setting not found")
 	}
 
-	// 2. 删除配置定义
+	// 2. 删除配置定义（Repository 装饰器会自动失效缓存）
 	if err := h.commandRepo.Delete(ctx, cmd.Key); err != nil {
 		return fmt.Errorf("failed to delete setting: %w", err)
-	}
-
-	// 3. 失效 Settings 缓存
-	if h.settingsCache != nil {
-		if err := h.settingsCache.DeleteAdminSettingsAll(ctx); err != nil {
-			slog.Warn("admin settings cache invalidation failed", "key", cmd.Key, "error", err.Error())
-		}
 	}
 
 	return nil
