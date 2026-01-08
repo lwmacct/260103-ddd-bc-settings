@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // BatchUpdateHandler 批量更新配置命令处理器

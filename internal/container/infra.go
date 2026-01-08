@@ -13,7 +13,7 @@ import (
 
 	dbpkg "github.com/lwmacct/260103-ddd-shared/pkg/platform/db"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/config"
 )
 
 // InfraModule 提供基础设施模块（DB、Redis）。

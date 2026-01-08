@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app/setting"
 	"github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
 )
 

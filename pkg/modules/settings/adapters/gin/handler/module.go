@@ -3,7 +3,7 @@ package handler
 import (
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app"
 )
 
 // Handlers 聚合 Settings 模块的所有 HTTP Handler。

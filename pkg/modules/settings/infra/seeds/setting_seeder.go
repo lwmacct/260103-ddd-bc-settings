@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/persistence"
 )
 
 // SettingSeeder 系统设置种子数据

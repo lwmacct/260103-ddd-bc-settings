@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	settingdomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	settingdomain "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // settingCommandWithCacheInvalidation 写操作后失效下游缓存的装饰器。

@@ -11,7 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "API Support",
-            "url": "https://github.com/lwmacct/260103-ddd-bc-settings"
+            "url": "https://github.com/lwmacct/260103-ddd-settings-bc"
         },
         "license": {
             "name": "MIT",

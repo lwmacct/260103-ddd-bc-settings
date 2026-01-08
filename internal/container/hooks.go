@@ -10,8 +10,8 @@ import (
 
 	dbpkg "github.com/lwmacct/260103-ddd-shared/pkg/platform/db"
 
-	persistence "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/seeds"
+	persistence "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/persistence"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/seeds"
 )
 
 // GetAllModels 返回所有需要迁移的 Model。

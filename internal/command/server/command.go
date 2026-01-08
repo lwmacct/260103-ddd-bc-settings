@@ -7,7 +7,7 @@
 //	@BasePath        /
 //
 //	@contact.name    API Support
-//	@contact.url     https://github.com/lwmacct/260103-ddd-bc-settings
+//	@contact.url     https://github.com/lwmacct/260103-ddd-settings-bc
 //
 //	@license.name    MIT
 //	@license.url     https://opensource.org/licenses/MIT

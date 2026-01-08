@@ -11,8 +11,8 @@ import (
 	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/urfave/cli/v3"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/container"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/config"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/container"
 )
 
 // actionMigrate 执行数据库迁移。

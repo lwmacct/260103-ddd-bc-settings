@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/config"
 )
 
 // Server 管理 HTTP Server 生命周期

@@ -4,9 +4,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
-	settingdomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/config"
+	settingdomain "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // CacheResult 使用 fx.Out 同时提供两个接口。

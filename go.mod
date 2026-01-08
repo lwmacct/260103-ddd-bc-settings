@@ -1,4 +1,4 @@
-module github.com/lwmacct/260103-ddd-bc-settings
+module github.com/lwmacct/260103-ddd-settings-bc
 
 go 1.25.5
 

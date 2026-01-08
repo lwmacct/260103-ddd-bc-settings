@@ -13,11 +13,11 @@ package settings
 import (
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/routes"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/cache"
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/adapters/gin/handler"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/adapters/gin/routes"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/cache"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/persistence"
 )
 
 // Module 提供 Settings Bounded Context 的完整 Fx 模块。

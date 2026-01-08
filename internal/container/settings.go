@@ -3,8 +3,8 @@ package container
 import (
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
-	settingsconfig "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/config"
+	settingsconfig "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/config"
 )
 
 // SettingsConfigModule 提供 Settings 模块的配置。

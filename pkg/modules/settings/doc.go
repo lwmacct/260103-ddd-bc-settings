@@ -20,7 +20,7 @@
 //
 // 本模块通过 fx.Module 注册所有子模块：
 //
-//	import "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings"
+//	import "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings"
 //
 //	fx.New(
 //	    settings.Module(),  // Settings 完整模块

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	settingsconfig "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
+	settingsconfig "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/config"
 )
 
 // Server 服务器配置

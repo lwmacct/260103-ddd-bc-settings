@@ -4,7 +4,7 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
-	settingdomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	settingdomain "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // RepositoryModule 提供 Settings 模块的所有仓储实现。

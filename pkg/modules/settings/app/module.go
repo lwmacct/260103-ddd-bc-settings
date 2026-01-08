@@ -10,7 +10,7 @@
 //
 // # 使用方式
 //
-//	import "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app"
+//	import "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app"
 //
 //	// 引用 UseCase 类型（通过类型别名）
 //	func NewHandler(useCases *app.SettingUseCases) *Handler { ... }
@@ -22,7 +22,7 @@ package app
 import (
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app/setting"
 )
 
 // SettingUseCases 是 setting.SettingUseCases 的类型别名。

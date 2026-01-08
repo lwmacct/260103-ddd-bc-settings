@@ -6,7 +6,7 @@
 //
 //	import (
 //	    apitest "github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
-//	    settingsapitest "github.com/lwmacct/260103-ddd-bc-settings/internal/apitest/settings"
+//	    settingsapitest "github.com/lwmacct/260103-ddd-settings-bc/internal/apitest/settings"
 //	)
 //
 // 使用方式：

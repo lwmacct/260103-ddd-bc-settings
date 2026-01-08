@@ -11,7 +11,7 @@
 //
 // # Usage
 //
-//	import "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/seeds"
+//	import "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/seeds"
 //
 //	// 执行所有 Seeder
 //	seeders := seeds.DefaultSeeders()

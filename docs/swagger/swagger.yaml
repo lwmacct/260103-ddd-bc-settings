@@ -322,7 +322,7 @@ host: localhost:8080
 info:
   contact:
     name: API Support
-    url: https://github.com/lwmacct/260103-ddd-bc-settings
+    url: https://github.com/lwmacct/260103-ddd-settings-bc
   description: 基于 DDD + CQRS 架构的配置管理模块
   license:
     name: MIT

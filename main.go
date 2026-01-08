@@ -7,8 +7,8 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/command/db"
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/command/server"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/command/db"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/command/server"
 )
 
 var (

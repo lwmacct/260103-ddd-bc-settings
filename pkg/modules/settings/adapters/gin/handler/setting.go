@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/response"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
-	settingDomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/app/setting"
+	settingDomain "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // SettingHandler handles setting management operations (DDD+CQRS Use Case Pattern)

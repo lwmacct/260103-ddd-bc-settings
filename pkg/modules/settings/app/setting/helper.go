@@ -3,7 +3,7 @@ package setting
 import (
 	"encoding/json"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // uiConfigRaw 内部结构用于解析 UIConfig JSONB

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // ListCategoriesMetaHandler 获取配置分类元信息列表处理器（管理员端）

@@ -13,7 +13,7 @@ import (
 
 	ginroutes "github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
+	"github.com/lwmacct/260103-ddd-settings-bc/internal/config"
 )
 
 // AllRoutesParams 注入 Settings 模块路由

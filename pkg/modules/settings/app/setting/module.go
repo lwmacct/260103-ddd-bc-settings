@@ -3,7 +3,7 @@ package setting
 import (
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/infra/persistence"
 )
 
 // SettingUseCases 聚合 Setting 模块的所有 UseCase Handler。

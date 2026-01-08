@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	settingsapitest "github.com/lwmacct/260103-ddd-bc-settings/internal/apitest/settings"
+	settingsapitest "github.com/lwmacct/260103-ddd-settings-bc/internal/apitest/settings"
 	apitest "github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
 )
 

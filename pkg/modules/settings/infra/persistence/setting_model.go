@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/datatypes"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // SettingModel 配置定义的 GORM 实体

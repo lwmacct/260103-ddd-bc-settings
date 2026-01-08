@@ -3,7 +3,7 @@ package setting
 import (
 	"context"
 
-	settingdomain "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
+	settingdomain "github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings/domain/setting"
 )
 
 // SettingsCacheService Settings 缓存服务接口。
