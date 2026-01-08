@@ -47,7 +47,8 @@ type Telemetry struct {
 
 // Settings
 type Settings struct {
-	BasePath string `koanf:"base-path" desc:"Settings 模块的 URL 基础路径 (默认 '/api/admin/settings')"`
+	BasePath       string `koanf:"base-path" desc:"Settings 模块的管理员 API 基础路径 (默认 '/api/admin/settings')"`
+	PublicBasePath string `koanf:"public-base-path" desc:"Settings 模块的公开 API 基础路径 (默认 '/api/public/settings')"`
 }
 
 // Config 应用配置
@@ -109,7 +110,8 @@ func DefaultConfig() Config {
 			SampleRate:   1.0, // 默认全部采样
 		},
 		Settings: Settings{
-			BasePath: "/api/admin/settings", // 默认基础路径
+			BasePath:       "/api/admin/settings",  // 默认管理员基础路径
+			PublicBasePath: "/api/public/settings", // 默认公开基础路径
 		},
 	}
 }

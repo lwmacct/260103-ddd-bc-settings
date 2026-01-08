@@ -25,5 +25,6 @@ func newSettingsConfig(cfg *config.Config) *settingsconfig.Config {
 	return &settingsconfig.Config{
 		RedisKeyPrefix: cfg.Data.RedisKeyPrefix + "settings:",
 		BasePath:       cfg.Settings.BasePath,
+		PublicBasePath: cfg.Settings.PublicBasePath,
 	}
 }
