@@ -25,7 +25,7 @@ pkg/modules/settings/
 └── adapters/gin/             # 适配器层 - HTTP 接口
     ├── handler/              # HTTP Handler
     ├── routes/               # 路由定义
-    └── manualtest/           # 集成测试
+    └── apitest/             # 集成测试
 
 internal/
 ├── bootstrap/                # 应用启动引导
@@ -81,7 +81,7 @@ go run cmd/server/main.go db seed
 go test ./...
 
 # API 集成测试（需要服务运行）
-API_TEST=1 go test -v -count=1 ./internal/manualtest/...
+API_TEST=1 go test -v -count=1 ./internal/apitest/...
 ```
 
 ### 代码质量

@@ -17,8 +17,8 @@ import (
 // 失效策略：
 //   - Create/Update/Delete/BatchUpsert 后异步失效 Settings 缓存
 type settingCommandWithCacheInvalidation struct {
-	delegate         settingdomain.CommandRepository
-	changeNotifier   settingdomain.SettingChangeNotifier
+	delegate       settingdomain.CommandRepository
+	changeNotifier settingdomain.SettingChangeNotifier
 }
 
 // NewCachedSettingCommandRepository 创建带缓存失效的 Setting 命令仓储。

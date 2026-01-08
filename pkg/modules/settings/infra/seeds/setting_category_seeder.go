@@ -4,9 +4,10 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
 )
 
 // SettingCategorySeeder 配置分类种子数据

@@ -3,8 +3,9 @@ package persistence
 import (
 	"context"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 	"gorm.io/gorm"
+
+	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
 
 // settingCategoryCommandRepository 配置分类写仓储实现。

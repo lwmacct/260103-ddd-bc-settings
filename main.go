@@ -5,9 +5,10 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/urfave/cli/v3"
+
 	"github.com/lwmacct/260103-ddd-bc-settings/internal/command/db"
 	"github.com/lwmacct/260103-ddd-bc-settings/internal/command/server"
-	"github.com/urfave/cli/v3"
 )
 
 var (

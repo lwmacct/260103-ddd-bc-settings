@@ -9,8 +9,8 @@ import (
 
 // BatchUpdateHandler 批量更新配置命令处理器
 type BatchUpdateHandler struct {
-	commandRepo   setting.CommandRepository
-	queryRepo     setting.QueryRepository
+	commandRepo setting.CommandRepository
+	queryRepo   setting.QueryRepository
 }
 
 // NewBatchUpdateHandler 创建 BatchUpdateHandler 实例
@@ -19,8 +19,8 @@ func NewBatchUpdateHandler(
 	queryRepo setting.QueryRepository,
 ) *BatchUpdateHandler {
 	return &BatchUpdateHandler{
-		commandRepo:   commandRepo,
-		queryRepo:     queryRepo,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
 	}
 }
 

@@ -10,8 +10,8 @@ import (
 
 // UpdateHandler 更新配置命令处理器
 type UpdateHandler struct {
-	commandRepo   setting.CommandRepository
-	queryRepo     setting.QueryRepository
+	commandRepo setting.CommandRepository
+	queryRepo   setting.QueryRepository
 }
 
 // NewUpdateHandler 创建 UpdateHandler 实例
@@ -20,8 +20,8 @@ func NewUpdateHandler(
 	queryRepo setting.QueryRepository,
 ) *UpdateHandler {
 	return &UpdateHandler{
-		commandRepo:   commandRepo,
-		queryRepo:     queryRepo,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
 	}
 }
 

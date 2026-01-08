@@ -1,4 +1,4 @@
-package manualtest_test
+package apitest_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	manualtest "github.com/lwmacct/260103-ddd-bc-settings/internal/manualtest/settings"
+	settingsapitest "github.com/lwmacct/260103-ddd-bc-settings/internal/apitest/settings"
 	apitest "github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
 )
 
@@ -124,7 +124,7 @@ func TestCreateCategory(t *testing.T) {
 	c := apitest.NewClient(baseURL)
 
 	// 创建测试分类
-	category := manualtest.CreateTestSettingCategory(t, c, "test_cat")
+	category := settingsapitest.CreateTestSettingCategory(t, c, "test_cat")
 
 	// 验证创建成功
 	assert.NotNil(t, category, "分类不应为 nil")

@@ -2,9 +2,10 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
+
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/handler"
 	settingsconfig "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
-	"github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
 )
 
 // Admin Settings 模块管理员路由。

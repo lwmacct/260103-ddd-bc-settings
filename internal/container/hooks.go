@@ -8,9 +8,10 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
+	dbpkg "github.com/lwmacct/260103-ddd-shared/pkg/platform/db"
+
 	persistence "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/persistence"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/infra/seeds"
-	dbpkg "github.com/lwmacct/260103-ddd-shared/pkg/platform/db"
 )
 
 // GetAllModels 返回所有需要迁移的 Model。

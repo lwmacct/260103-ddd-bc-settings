@@ -11,8 +11,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
 	ginroutes "github.com/lwmacct/260103-ddd-shared/pkg/platform/http/gin/routes"
+
+	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
 )
 
 // AllRoutesParams 注入 Settings 模块路由

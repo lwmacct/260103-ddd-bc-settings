@@ -10,8 +10,8 @@ import (
 
 // DeleteHandler 删除配置命令处理器
 type DeleteHandler struct {
-	commandRepo   setting.CommandRepository
-	queryRepo     setting.QueryRepository
+	commandRepo setting.CommandRepository
+	queryRepo   setting.QueryRepository
 }
 
 // NewDeleteHandler 创建 DeleteHandler 实例
@@ -20,8 +20,8 @@ func NewDeleteHandler(
 	queryRepo setting.QueryRepository,
 ) *DeleteHandler {
 	return &DeleteHandler{
-		commandRepo:   commandRepo,
-		queryRepo:     queryRepo,
+		commandRepo: commandRepo,
+		queryRepo:   queryRepo,
 	}
 }
 

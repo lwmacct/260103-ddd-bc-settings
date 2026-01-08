@@ -23,10 +23,10 @@ import (
 // Module 提供 Settings Bounded Context 的完整 Fx 模块。
 //
 // 依赖顺序（严格按此顺序注册）：
-//   1. cache.CacheModule - 缓存服务
-//   2. persistence.RepositoryModule - 数据持久化（依赖缓存）
-//   3. app.UseCaseModule - 用例处理器（依赖仓储）
-//   4. handler.HandlerModule - HTTP 处理器（依赖用例）
+//  1. cache.CacheModule - 缓存服务
+//  2. persistence.RepositoryModule - 数据持久化（依赖缓存）
+//  3. app.UseCaseModule - 用例处理器（依赖仓储）
+//  4. handler.HandlerModule - HTTP 处理器（依赖用例）
 //
 // 使用示例：
 //

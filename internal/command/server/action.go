@@ -16,10 +16,11 @@ import (
 	"github.com/lwmacct/251219-go-pkg-logm/pkg/logm"
 	"github.com/lwmacct/251219-go-pkg-logm/pkg/logm/formatter"
 	"github.com/lwmacct/251219-go-pkg-logm/pkg/logm/writer"
+	"github.com/urfave/cli/v3"
+
 	"github.com/lwmacct/260103-ddd-bc-settings/internal/config"
 	"github.com/lwmacct/260103-ddd-bc-settings/internal/container"
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings"
-	"github.com/urfave/cli/v3"
 
 	// Swagger docs - 空白导入触发 docs.go 的 init() 函数
 	_ "github.com/lwmacct/260103-ddd-bc-settings/docs/swagger"

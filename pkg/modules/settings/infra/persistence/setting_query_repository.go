@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 	"gorm.io/gorm"
+
+	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/domain/setting"
 )
 
 // settingQueryRepository 配置定义查询仓储的 GORM 实现

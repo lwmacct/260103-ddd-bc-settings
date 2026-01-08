@@ -1,4 +1,4 @@
-package manualtest
+package apitest
 
 import (
 	"fmt"
@@ -10,16 +10,11 @@ import (
 	"github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
 )
 
-// 初始化随机数种子（在包初始化时执行一次）
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 // CreateTestSetting 创建测试配置，自动注册 Cleanup。
 //
 // 使用示例：
 //
-//	setting := manualtest.CreateTestSetting(t, c, "testprefix")
+//	setting := apitest.CreateTestSetting(t, c, "testprefix")
 //	// 使用 setting...
 //	// 测试结束后自动清理
 func CreateTestSetting(t *testing.T, c *apitest.Client, prefix string) *setting.SettingDTO {
@@ -34,7 +29,7 @@ func CreateTestSetting(t *testing.T, c *apitest.Client, prefix string) *setting.
 //
 // 使用示例：
 //
-//	setting, markDeleted := manualtest.CreateTestSettingWithCleanupControl(t, c, "testprefix")
+//	setting, markDeleted := apitest.CreateTestSettingWithCleanupControl(t, c, "testprefix")
 //	// ... 测试删除逻辑
 //	err := c.Delete("/api/admin/settings/" + setting.Key)
 //	// ... 验证删除成功
