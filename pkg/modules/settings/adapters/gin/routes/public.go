@@ -10,7 +10,7 @@ import (
 
 // Public Settings 模块公开路由（无需认证）。
 func Public(settingHandler *handler.SettingHandler, cfg *settingsconfig.Config) []routes.Route {
-	base := cfg.PublicBasePath
+	base := cfg.PublicPath
 
 	return []routes.Route{
 		{

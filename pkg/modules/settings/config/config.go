@@ -7,11 +7,11 @@ type Config struct {
 	// 例如："app:settings:" 或 "prod:settings:"
 	RedisKeyPrefix string `koanf:"redis-key-prefix"`
 
-	// BasePath Settings 管理员 API 的基础路径
-	BasePath string `koanf:"base-path"`
+	// AdminPath Settings 管理员 API 的路径（需要认证）
+	AdminPath string `koanf:"admin-path"`
 
-	// PublicBasePath Settings 公开 API 的基础路径（无需认证）
-	PublicBasePath string `koanf:"public-base-path"`
+	// PublicPath Settings 公开 API 的路径（无需认证）
+	PublicPath string `koanf:"public-path"`
 }
 
 // DefaultConfig 返回 Settings 模块的默认配置。
@@ -22,7 +22,7 @@ type Config struct {
 func DefaultConfig() Config {
 	return Config{
 		RedisKeyPrefix: "app:settings:",
-		BasePath:       "/api/admin/settings",
-		PublicBasePath: "/api/public/settings",
+		AdminPath:      "/api/admin/settings",
+		PublicPath:     "/api/public/settings",
 	}
 }
