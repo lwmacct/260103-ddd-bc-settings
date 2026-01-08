@@ -13,7 +13,7 @@ func Admin(
 	settingHandler *handler.SettingHandler,
 	cfg *settingsconfig.Config,
 ) []routes.Route {
-	base := cfg.AdminPath
+	base := cfg.API.AdminPath
 
 	var allRoutes []routes.Route
 

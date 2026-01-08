@@ -1,5 +1,14 @@
 package config
 
+// APIConfig Settings API 配置
+type APIConfig struct {
+	// AdminPath Settings 管理员 API 的路径（需要认证）
+	AdminPath string `koanf:"admin-path"`
+
+	// PublicPath Settings 公开 API 的路径（无需认证）
+	PublicPath string `koanf:"public-path"`
+}
+
 // Config Settings 模块配置
 type Config struct {
 	// RedisKeyPrefix Redis 缓存键前缀
@@ -7,11 +16,16 @@ type Config struct {
 	// 例如："app:settings:" 或 "prod:settings:"
 	RedisKeyPrefix string `koanf:"redis-key-prefix"`
 
-	// AdminPath Settings 管理员 API 的路径（需要认证）
-	AdminPath string `koanf:"admin-path"`
+	// API Settings API 配置
+	API APIConfig `koanf:"api"`
+}
 
-	// PublicPath Settings 公开 API 的路径（无需认证）
-	PublicPath string `koanf:"public-path"`
+// DefaultAPIConfig 返回 Settings API 的默认配置。
+func DefaultAPIConfig() APIConfig {
+	return APIConfig{
+		AdminPath:  "/api/admin/settings",
+		PublicPath: "/api/public/settings",
+	}
 }
 
 // DefaultConfig 返回 Settings 模块的默认配置。
@@ -22,7 +36,6 @@ type Config struct {
 func DefaultConfig() Config {
 	return Config{
 		RedisKeyPrefix: "app:settings:",
-		AdminPath:      "/api/admin/settings",
-		PublicPath:     "/api/public/settings",
+		API:            DefaultAPIConfig(),
 	}
 }

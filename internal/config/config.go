@@ -4,6 +4,8 @@ package config
 import (
 	"strings"
 	"time"
+
+	settingsconfig "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/config"
 )
 
 // Server 服务器配置
@@ -47,8 +49,7 @@ type Telemetry struct {
 
 // Settings
 type Settings struct {
-	AdminPath  string `koanf:"admin-path" desc:"Settings 管理员 API 路径 (默认 '/api/admin/settings')"`
-	PublicPath string `koanf:"public-path" desc:"Settings 公开 API 路径 (默认 '/api/public/settings')"`
+	API settingsconfig.APIConfig `koanf:"api" desc:"Settings API 配置"`
 }
 
 // Config 应用配置
@@ -110,8 +111,7 @@ func DefaultConfig() Config {
 			SampleRate:   1.0, // 默认全部采样
 		},
 		Settings: Settings{
-			AdminPath:  "/api/admin/settings",  // 默认管理员路径
-			PublicPath: "/api/public/settings", // 默认公开路径
+			API: settingsconfig.DefaultAPIConfig(),
 		},
 	}
 }

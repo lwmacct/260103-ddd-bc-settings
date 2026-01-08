@@ -24,7 +24,6 @@ var SettingsConfigModule = fx.Module("settings.config",
 func newSettingsConfig(cfg *config.Config) *settingsconfig.Config {
 	return &settingsconfig.Config{
 		RedisKeyPrefix: cfg.Data.RedisKeyPrefix + "settings:",
-		AdminPath:      cfg.Settings.AdminPath,
-		PublicPath:     cfg.Settings.PublicPath,
+		API:            cfg.Settings.API,
 	}
 }
