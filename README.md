@@ -80,8 +80,8 @@ go run cmd/server/main.go db seed
 # 单元测试
 go test ./...
 
-# 手动集成测试（需要服务运行）
-MANUAL=1 go test -v -count=1 ./internal/manualtest/...
+# API 集成测试（需要服务运行）
+API_TEST=1 go test -v -count=1 ./internal/manualtest/...
 ```
 
 ### 代码质量

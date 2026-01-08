@@ -1,4 +1,4 @@
-package settings_test
+package manualtest_test
 
 import (
 	"fmt"
@@ -8,7 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	manualtest "github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/adapters/gin/manualtest"
+	manualtest "github.com/lwmacct/260103-ddd-bc-settings/internal/manualtest/settings"
+	apitest "github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
 )
 
 const baseURL = "http://localhost:8080"
@@ -19,11 +20,11 @@ const baseURL = "http://localhost:8080"
 
 // TestPublicSettings 测试获取公开配置列表
 func TestPublicSettings(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 调用公开 API - 无需认证（返回扁平结构）
-	result, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
+	result, err := apitest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	require.NoError(t, err, "获取公开配置列表失败")
 
 	// 公开配置可能为空（取决于 seeder 数据）
@@ -54,11 +55,11 @@ func TestPublicSettings(t *testing.T) {
 
 // TestPublicSettingsWithCategoryFilter 测试按分类过滤公开配置
 func TestPublicSettingsWithCategoryFilter(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 使用 category_key 参数过滤（扁平结构不包含 category 字段）
-	result, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", map[string]string{
+	result, err := apitest.Get[[]map[string]any](c, "/api/public/settings", map[string]string{
 		"category_key": "general",
 	})
 	require.NoError(t, err, "获取 general 分类的公开配置失败")
@@ -79,12 +80,12 @@ func TestPublicSettingsWithCategoryFilter(t *testing.T) {
 
 // TestPublicSettingsNoAuth 测试公开 API 无需认证
 func TestPublicSettingsNoAuth(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 	// 明确不设置任何 token
 
 	// 公开 API 应该可以访问
-	_, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
+	_, err := apitest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	assert.NoError(t, err, "公开 API 应该无需认证即可访问")
 }
 
@@ -94,11 +95,11 @@ func TestPublicSettingsNoAuth(t *testing.T) {
 
 // TestGetCategories 测试获取配置分类列表
 func TestGetCategories(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 调用 API - 使用 Get 而非 GetList，因为该接口返回简单列表而非分页数据
-	result, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings/categories", nil)
+	result, err := apitest.Get[[]map[string]any](c, "/api/admin/settings/categories", nil)
 	require.NoError(t, err, "获取分类列表失败")
 
 	// 验证结果
@@ -119,8 +120,8 @@ func TestGetCategories(t *testing.T) {
 
 // TestCreateCategory 测试创建配置分类
 func TestCreateCategory(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 创建测试分类
 	category := manualtest.CreateTestSettingCategory(t, c, "test_cat")
@@ -135,12 +136,12 @@ func TestCreateCategory(t *testing.T) {
 
 // TestSettingsAPIPerformance 测试 API 响应时间
 func TestSettingsAPIPerformance(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 测试列表接口响应时间
 	start := time.Now()
-	result, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings/categories", nil)
+	result, err := apitest.Get[[]map[string]any](c, "/api/admin/settings/categories", nil)
 	duration := time.Since(start)
 
 	require.NoError(t, err, "获取分类列表失败")
@@ -152,11 +153,11 @@ func TestSettingsAPIPerformance(t *testing.T) {
 
 // TestGetSettings 测试获取配置列表（扁平结构）
 func TestGetSettings(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 调用 API - 获取扁平结构的配置列表
-	result, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
+	result, err := apitest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取配置列表失败")
 
 	// 验证结果
@@ -189,11 +190,11 @@ func TestGetSettings(t *testing.T) {
 
 // TestGetSettingByKey 测试获取单个配置详情
 func TestGetSettingByKey(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 先获取配置列表，找到一个有效的 key（扁平结构）
-	settingsList, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
+	settingsList, err := apitest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取配置列表失败")
 	require.NotEmpty(t, settingsList, "至少需要一个配置")
 
@@ -203,7 +204,7 @@ func TestGetSettingByKey(t *testing.T) {
 	require.True(t, ok, "Setting 应该有 key 字段")
 
 	// 调用 API 获取配置详情
-	result, err := manualtest.Get[map[string]any](c, "/api/admin/settings/"+testKey, nil)
+	result, err := apitest.Get[map[string]any](c, "/api/admin/settings/"+testKey, nil)
 	require.NoError(t, err, "获取配置详情失败")
 
 	// 验证结果
@@ -217,11 +218,11 @@ func TestGetSettingByKey(t *testing.T) {
 
 // TestGetCategoryByID 测试获取单个分类详情
 func TestGetCategoryByID(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 先获取分类列表，找到一个有效的 ID
-	categories, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings/categories", nil)
+	categories, err := apitest.Get[[]map[string]any](c, "/api/admin/settings/categories", nil)
 	require.NoError(t, err, "获取分类列表失败")
 	require.NotEmpty(t, categories, "至少需要一个分类")
 
@@ -231,7 +232,7 @@ func TestGetCategoryByID(t *testing.T) {
 	require.True(t, ok, "分类 ID 应该是数字")
 
 	// 调用 API 获取分类详情
-	result, err := manualtest.Get[map[string]any](c, fmt.Sprintf("/api/admin/settings/categories/%d", int(categoryID)), nil)
+	result, err := apitest.Get[map[string]any](c, fmt.Sprintf("/api/admin/settings/categories/%d", int(categoryID)), nil)
 	require.NoError(t, err, "获取分类详情失败")
 
 	// 验证结果
@@ -246,11 +247,11 @@ func TestGetCategoryByID(t *testing.T) {
 
 // TestSettingsFlatStructure 测试配置扁平结构的正确性
 func TestSettingsFlatStructure(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 获取配置列表（扁平结构）
-	result, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
+	result, err := apitest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取配置列表失败")
 	require.NotEmpty(t, result, "配置列表不应为空")
 
@@ -284,15 +285,15 @@ func TestSettingsFlatStructure(t *testing.T) {
 
 // TestPublicVsAdminAPIComparison 测试公开 API 和管理员 API 的差异
 func TestPublicVsAdminAPIComparison(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 获取管理员 API 的配置列表（扁平结构）
-	adminResult, err := manualtest.Get[[]map[string]any](c, "/api/admin/settings", nil)
+	adminResult, err := apitest.Get[[]map[string]any](c, "/api/admin/settings", nil)
 	require.NoError(t, err, "获取管理员配置列表失败")
 
 	// 获取公开 API 的配置列表（扁平结构）
-	publicResult, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
+	publicResult, err := apitest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	require.NoError(t, err, "获取公开配置列表失败")
 
 	// 统计管理员 API 中的公开配置数量
@@ -322,12 +323,12 @@ func TestPublicVsAdminAPIComparison(t *testing.T) {
 
 // TestPublicAPIPerformance 测试公开 API 响应时间
 func TestPublicAPIPerformance(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 测试公开 API 响应时间
 	start := time.Now()
-	_, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
+	_, err := apitest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	duration := time.Since(start)
 
 	require.NoError(t, err, "获取公开配置列表失败")
@@ -338,18 +339,18 @@ func TestPublicAPIPerformance(t *testing.T) {
 
 // TestPublicAPICaching 测试公开 API 缓存效果
 func TestPublicAPICaching(t *testing.T) {
-	manualtest.SkipIfNotManual(t)
-	c := manualtest.NewClient(baseURL)
+	apitest.SkipIfNotAPITest(t)
+	c := apitest.NewClient(baseURL)
 
 	// 第一次请求（可能未命中缓存）
 	start1 := time.Now()
-	_, err := manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
+	_, err := apitest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	duration1 := time.Since(start1)
 	require.NoError(t, err, "第一次请求失败")
 
 	// 第二次请求（应该命中缓存）
 	start2 := time.Now()
-	_, err = manualtest.Get[[]map[string]any](c, "/api/public/settings", nil)
+	_, err = apitest.Get[[]map[string]any](c, "/api/public/settings", nil)
 	duration2 := time.Since(start2)
 	require.NoError(t, err, "第二次请求失败")
 

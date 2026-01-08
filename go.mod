@@ -5,10 +5,9 @@ go 1.25.5
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.30.1
-	github.com/go-resty/resty/v2 v2.17.1
 	github.com/lwmacct/251207-go-pkg-cfgm v0.2.4
 	github.com/lwmacct/251219-go-pkg-logm v0.1.8
-	github.com/lwmacct/260103-ddd-shared v0.6.260106
+	github.com/lwmacct/260103-ddd-shared v0.9.260108
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/files v1.0.1
@@ -48,6 +47,7 @@ require (
 	github.com/go-openapi/swag/yamlutils v0.25.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-resty/resty/v2 v2.17.1 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect

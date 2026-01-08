@@ -60,13 +60,13 @@
 
 ```bash
 # 运行所有 Settings 测试
-MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/...
+API_TEST=1 go test -v -count=1 ./internal/manualtest/settings/...
 
 # 运行特定测试
-MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/... -run TestGetSettings
+API_TEST=1 go test -v -count=1 ./internal/manualtest/settings/... -run TestGetSettings
 
 # 运行扁平结构验证测试
-MANUAL=1 go test -v -count=1 ./internal/manualtest/settings/... -run "TestGetSettings|TestSettingsFlatStructure"
+API_TEST=1 go test -v -count=1 ./internal/manualtest/settings/... -run "TestGetSettings|TestSettingsFlatStructure"
 ```
 
 ## API 响应示例

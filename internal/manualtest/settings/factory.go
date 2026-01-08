@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/lwmacct/260103-ddd-bc-settings/pkg/modules/settings/app/setting"
+	"github.com/lwmacct/260103-ddd-shared/pkg/shared/apitest"
 )
 
 // 初始化随机数种子（在包初始化时执行一次）
@@ -21,7 +22,8 @@ func init() {
 //	setting := manualtest.CreateTestSetting(t, c, "testprefix")
 //	// 使用 setting...
 //	// 测试结束后自动清理
-func CreateTestSetting(t *testing.T, c *Client, prefix string) *setting.SettingDTO {
+func CreateTestSetting(t *testing.T, c *apitest.Client, prefix string) *setting.SettingDTO {
+	t.Helper()
 	result, _ := CreateTestSettingWithCleanupControl(t, c, prefix)
 	return result
 }
@@ -37,7 +39,8 @@ func CreateTestSetting(t *testing.T, c *Client, prefix string) *setting.SettingD
 //	err := c.Delete("/api/admin/settings/" + setting.Key)
 //	// ... 验证删除成功
 //	markDeleted() // 标记已删除，跳过 Cleanup
-func CreateTestSettingWithCleanupControl(t *testing.T, c *Client, prefix string) (*setting.SettingDTO, func()) {
+func CreateTestSettingWithCleanupControl(t *testing.T, c *apitest.Client, prefix string) (*setting.SettingDTO, func()) {
+	t.Helper()
 	// 使用 prefix + 时间戳后缀 + 随机字符串确保唯一性
 	key := fmt.Sprintf("%s_%d_%s", prefix, time.Now().UnixNano(), randomString(4))
 
@@ -52,7 +55,7 @@ func CreateTestSettingWithCleanupControl(t *testing.T, c *Client, prefix string)
 		"input_type":    "text",
 	}
 
-	result, err := Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
+	result, err := apitest.Post[setting.SettingDTO](c, "/api/admin/settings", createReq)
 	if err != nil {
 		t.Fatalf("failed to create test setting: %v", err)
 	}
@@ -75,13 +78,15 @@ func CreateTestSettingWithCleanupControl(t *testing.T, c *Client, prefix string)
 }
 
 // CreateTestSettingCategory 创建测试配置分类，自动注册 Cleanup。
-func CreateTestSettingCategory(t *testing.T, c *Client, prefix string) *setting.CategoryDTO {
+func CreateTestSettingCategory(t *testing.T, c *apitest.Client, prefix string) *setting.CategoryDTO {
+	t.Helper()
 	result, _ := CreateTestSettingCategoryWithCleanupControl(t, c, prefix)
 	return result
 }
 
 // CreateTestSettingCategoryWithCleanupControl 创建测试配置分类，返回清理控制函数。
-func CreateTestSettingCategoryWithCleanupControl(t *testing.T, c *Client, prefix string) (*setting.CategoryDTO, func()) {
+func CreateTestSettingCategoryWithCleanupControl(t *testing.T, c *apitest.Client, prefix string) (*setting.CategoryDTO, func()) {
+	t.Helper()
 	// 使用 prefix + 时间戳后缀 + 随机字符串确保唯一性
 	key := fmt.Sprintf("%s_%d_%s", prefix, time.Now().UnixNano(), randomString(4))
 
@@ -92,7 +97,7 @@ func CreateTestSettingCategoryWithCleanupControl(t *testing.T, c *Client, prefix
 		"order": 100,
 	}
 
-	result, err := Post[setting.CategoryDTO](c, "/api/admin/settings/categories", createReq)
+	result, err := apitest.Post[setting.CategoryDTO](c, "/api/admin/settings/categories", createReq)
 	if err != nil {
 		t.Fatalf("failed to create test category: %v", err)
 	}
