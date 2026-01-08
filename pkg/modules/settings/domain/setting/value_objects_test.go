@@ -181,7 +181,8 @@ func TestNewCategory(t *testing.T) {
 		{"security is valid", "security", false},
 		{"notification is valid", "notification", false},
 		{"backup is valid", "backup", false},
-		{"unknown is invalid", "unknown", true},
+		{"custom category is valid", "custom", false},
+		{"unknown is valid", "unknown", false},
 		{"empty is invalid", "", true},
 	}
 
@@ -190,7 +191,7 @@ func TestNewCategory(t *testing.T) {
 			c, err := NewCategory(tt.cat)
 			if tt.wantErr {
 				require.Error(t, err)
-				assert.ErrorIs(t, err, ErrCategoryNotFound)
+				assert.ErrorIs(t, err, ErrInvalidCategory)
 			} else {
 				require.NoError(t, err)
 				assert.Equal(t, tt.cat, c.String())
@@ -207,9 +208,9 @@ func TestMustCategory(t *testing.T) {
 		})
 	})
 
-	t.Run("invalid category panics", func(t *testing.T) {
+	t.Run("empty category panics", func(t *testing.T) {
 		assert.Panics(t, func() {
-			MustCategory("invalid")
+			MustCategory("")
 		})
 	})
 }
@@ -230,6 +231,7 @@ func TestCategory_IsValid(t *testing.T) {
 		{"security is valid", "security", true},
 		{"notification is valid", "notification", true},
 		{"backup is valid", "backup", true},
+		{"custom category is valid", "custom", true},
 	}
 
 	for _, tt := range tests {
@@ -276,13 +278,4 @@ func TestCategory_Equal(t *testing.T) {
 		var zero Category
 		assert.False(t, c1.Equal(zero))
 	})
-}
-
-func TestAllCategoryStrings(t *testing.T) {
-	cats := AllCategoryStrings()
-	assert.Len(t, cats, 4)
-	assert.Contains(t, cats, "general")
-	assert.Contains(t, cats, "security")
-	assert.Contains(t, cats, "notification")
-	assert.Contains(t, cats, "backup")
 }

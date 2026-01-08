@@ -48,4 +48,7 @@ var (
 
 	// ErrInvalidCategoryID 无效的分类 ID
 	ErrInvalidCategoryID = errors.New("invalid category id")
+
+	// ErrInvalidCategory 无效的分类字符串（空值）
+	ErrInvalidCategory = errors.New("invalid category")
 )

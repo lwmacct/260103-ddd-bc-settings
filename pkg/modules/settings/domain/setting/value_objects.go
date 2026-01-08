@@ -80,25 +80,19 @@ func (k SettingKey) IsEmpty() bool {
 // Category 配置分类值对象。
 //
 // 用于对配置项进行逻辑分组，便于管理界面展示和权限控制。
-// 实际的分类常量定义在 entity_setting.go 中（如 CategoryGeneral）。
+// 分类值从数据库动态加载，不限制特定分类集合。
 type Category struct {
 	value string
 }
 
-// NewCategory 创建配置分类，验证有效性。
+// NewCategory 创建配置分类，验证非空。
 //
-// 使用 entity_setting.go 中定义的分类常量：
-//   - CategoryGeneral
-//   - CategorySecurity
-//   - CategoryNotification
-//   - CategoryBackup
+// 只验证非空，具体的分类值由数据库驱动。
 func NewCategory(cat string) (Category, error) {
-	switch cat {
-	case "general", "security", "notification", "backup":
-		return Category{value: cat}, nil
-	default:
-		return Category{}, ErrCategoryNotFound
+	if cat == "" {
+		return Category{}, ErrInvalidCategory
 	}
+	return Category{value: cat}, nil
 }
 
 // MustCategory 创建配置分类，无效时 panic。
@@ -117,14 +111,9 @@ func (c Category) String() string {
 	return c.value
 }
 
-// IsValid 报告分类是否有效。
+// IsValid 报告分类是否有效（非空）。
 func (c Category) IsValid() bool {
-	switch c.value {
-	case "general", "security", "notification", "backup":
-		return true
-	default:
-		return false
-	}
+	return c.value != ""
 }
 
 // Equal 报告两个分类是否相等。
@@ -135,9 +124,4 @@ func (c Category) Equal(other Category) bool {
 // IsEmpty 报告分类是否为空。
 func (c Category) IsEmpty() bool {
 	return c.value == ""
-}
-
-// AllCategoryStrings 返回所有有效分类的字符串表示。
-func AllCategoryStrings() []string {
-	return []string{"general", "security", "notification", "backup"}
 }
