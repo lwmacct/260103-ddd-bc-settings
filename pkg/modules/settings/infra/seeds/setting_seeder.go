@@ -25,18 +25,21 @@ func (s *SettingSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 		return fmt.Errorf("load category IDs: %w", err)
 	}
 
-	// 验证必需的 Category 存在
+	// 2. 检查必需的 Category，缺失时记录警告
 	requiredCategories := []string{"general", "security", "email", "oauth", "notification", "backup"}
 	for _, key := range requiredCategories {
 		if _, ok := categoryIDs[key]; !ok {
-			return fmt.Errorf("required category not found: %s (run SettingCategorySeeder first)", key)
+			slog.Warn("required category not found, skipping dependent settings", "category", key)
 		}
 	}
 
-	// 2. 构建配置定义（使用 CategoryID）
+	// 3. 构建配置定义（使用 CategoryID）
 	definitions := s.buildDefinitions(categoryIDs)
 
-	// 3. 批量插入/更新
+	// 4. 过滤掉 Category ID 为 0 的定义（Category 不存在）
+	filteredDefinitions := s.filterValidDefinitions(definitions)
+
+	// 5. 批量插入/更新
 	result := db.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.AssignmentColumns([]string{
@@ -44,12 +47,12 @@ func (s *SettingSeeder) Seed(ctx context.Context, db *gorm.DB) error {
 			"group", "order", "label",
 			"visible_at", "configurable_at", // 新字段
 		}), // 仅更新 UI 元数据，保留已有的 DefaultValue（通过 API 修改的值）
-	}).Create(&definitions)
+	}).Create(&filteredDefinitions)
 	if result.Error != nil {
 		return result.Error
 	}
 
-	slog.Info("Seeded setting definitions", "attempted", len(definitions), "inserted", result.RowsAffected)
+	slog.Info("Seeded setting definitions", "total", len(definitions), "valid", len(filteredDefinitions), "inserted", result.RowsAffected)
 	return nil
 }
 
@@ -70,6 +73,19 @@ func (s *SettingSeeder) loadCategoryIDs(db *gorm.DB) (map[string]uint, error) {
 		result[cat.Key] = cat.ID
 	}
 	return result, nil
+}
+
+// filterValidDefinitions 过滤掉 Category ID 为 0 的定义（Category 不存在）
+func (s *SettingSeeder) filterValidDefinitions(definitions []persistence.SettingModel) []persistence.SettingModel {
+	filtered := make([]persistence.SettingModel, 0, len(definitions))
+	for _, def := range definitions {
+		if def.CategoryID == 0 {
+			slog.Warn("skipping setting with missing category", "key", def.Key)
+			continue
+		}
+		filtered = append(filtered, def)
+	}
+	return filtered
 }
 
 // buildDefinitions 构建配置定义列表
