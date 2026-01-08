@@ -30,10 +30,14 @@ var CacheModule = fx.Module("settings.cache",
 )
 
 // NewSettingsCacheServiceAs 创建缓存服务并同时提供两个接口。
+//
+// 参数：
+//   - client: Platform 层的 Redis 客户端（由容器层提供）
+//   - settingsCfg: Settings 模块配置（包含 Redis 键前缀）
 func NewSettingsCacheServiceAs(client *redis.Client, settingsCfg *config.Config) CacheResult {
 	service := &settingsCacheService{
 		client:    client,
-		keyPrefix: settingsCfg.Redis.KeyPrefix,
+		keyPrefix: settingsCfg.RedisKeyPrefix,
 	}
 
 	return CacheResult{

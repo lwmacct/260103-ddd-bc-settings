@@ -14,7 +14,7 @@ import (
 func Public(settingHandler *handler.SettingHandler, cfg *settingsconfig.Config) []routes.Route {
 	// 从 admin 基础路径派生 public 路径
 	// 例如：/api/admin/settings → /api/public/settings
-	base := strings.Replace(cfg.HTTP.BasePath, "/admin/", "/public/", 1)
+	base := strings.Replace(cfg.BasePath, "/admin/", "/public/", 1)
 
 	return []routes.Route{
 		{

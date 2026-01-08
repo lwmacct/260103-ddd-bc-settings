@@ -16,13 +16,14 @@ var SettingsConfigModule = fx.Module("settings.config",
 )
 
 // newSettingsConfig 从全局配置构造 Settings 模块配置。
+//
+// 组合基础前缀和模块标识，形成完整的缓存键前缀：
+//   - 基础前缀：cfg.Data.RedisKeyPrefix（如 "app:"）
+//   - 模块标识："settings:"
+//   - 组合结果："app:settings:"
 func newSettingsConfig(cfg *config.Config) *settingsconfig.Config {
 	return &settingsconfig.Config{
-		Redis: settingsconfig.Redis{
-			KeyPrefix: cfg.Data.RedisKeyPrefix,
-		},
-		HTTP: settingsconfig.HTTP{
-			BasePath: cfg.Settings.BasePath,
-		},
+		RedisKeyPrefix: cfg.Data.RedisKeyPrefix + "settings:",
+		BasePath:       cfg.Settings.BasePath,
 	}
 }
