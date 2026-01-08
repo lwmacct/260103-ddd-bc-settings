@@ -16,8 +16,8 @@ type CacheResult struct {
 	// Application 层使用的完整缓存服务
 	SettingsCacheService setting.SettingsCacheService
 
-	// Infrastructure 层使用的缓存失效接口
-	CacheInvalidator settingdomain.CacheInvalidator
+	// Infrastructure 层使用的配置变更通知接口（业务语义）
+	SettingChangeNotifier settingdomain.SettingChangeNotifier
 }
 
 // CacheModule 提供 Settings 模块的缓存服务。
@@ -37,14 +37,13 @@ func NewSettingsCacheServiceAs(client *redis.Client, settingsCfg *config.Config)
 	}
 
 	return CacheResult{
-		SettingsCacheService: service,
-		CacheInvalidator:     service,
+		SettingsCacheService:  service,
+		SettingChangeNotifier: service,
 	}
 }
 
 // 编译时检查：确保实现了所有必需的接口
 var (
-	_ setting.SettingsCacheService    = (*settingsCacheService)(nil)
-	_ settingdomain.CacheInvalidator = (*settingsCacheService)(nil)
+	_ setting.SettingsCacheService        = (*settingsCacheService)(nil)
+	_ settingdomain.SettingChangeNotifier = (*settingsCacheService)(nil)
 )
-

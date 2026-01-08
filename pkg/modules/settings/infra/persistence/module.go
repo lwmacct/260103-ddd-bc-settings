@@ -21,20 +21,19 @@ var RepositoryModule = fx.Module("settings.repository",
 
 // newSettingRepositoriesWithCache 创建带缓存装饰的仓储。
 //
-// 组合原始仓储和缓存服务，提供缓存失效策略：
+// 组合原始仓储和变更通知器，提供缓存失效策略：
 //   - Query 操作：先查缓存，未命中则查数据库
 //   - Command 操作：执行写操作后异步失效相关缓存
 //
-// 参数 cacheInvalidator 需要实现 settingdomain.CacheInvalidator 接口，
-// 通常由 Infrastructure 层的 SettingsCacheService 实现。
+// 参数 changeNotifier 用于 Command 装饰器通知变更。
 func newSettingRepositoriesWithCache(
 	db *gorm.DB,
-	cacheInvalidator settingdomain.CacheInvalidator,
+	changeNotifier settingdomain.SettingChangeNotifier,
 ) SettingRepositories {
 	rawRepos := NewSettingRepositories(db)
 
 	// Setting 缓存装饰（只有 Command 需要失效缓存，Query 缓存在 Application 层）
-	cachedCommand := NewCachedSettingCommandRepository(rawRepos.Command, cacheInvalidator)
+	cachedCommand := NewCachedSettingCommandRepository(rawRepos.Command, changeNotifier)
 
 	// SettingCategory Query 不做缓存装饰（Application 层有缓存）
 	// SettingCategory Command 不需要缓存失效

@@ -18,17 +18,17 @@ import (
 //   - Create/Update/Delete/BatchUpsert 后异步失效 Settings 缓存
 type settingCommandWithCacheInvalidation struct {
 	delegate         settingdomain.CommandRepository
-	cacheInvalidator settingdomain.CacheInvalidator
+	changeNotifier   settingdomain.SettingChangeNotifier
 }
 
 // NewCachedSettingCommandRepository 创建带缓存失效的 Setting 命令仓储。
 func NewCachedSettingCommandRepository(
 	delegate settingdomain.CommandRepository,
-	cacheInvalidator settingdomain.CacheInvalidator,
+	changeNotifier settingdomain.SettingChangeNotifier,
 ) settingdomain.CommandRepository {
 	return &settingCommandWithCacheInvalidation{
-		delegate:         delegate,
-		cacheInvalidator: cacheInvalidator,
+		delegate:       delegate,
+		changeNotifier: changeNotifier,
 	}
 }
 
@@ -76,13 +76,13 @@ func (r *settingCommandWithCacheInvalidation) invalidateSettingsCacheAsync(categ
 
 		var err error
 		if categoryKey == "" {
-			err = r.cacheInvalidator.DeleteAll(ctx)
+			err = r.changeNotifier.NotifyAllChanged(ctx)
 		} else {
-			err = r.cacheInvalidator.DeleteByCategoryKey(ctx, categoryKey)
+			err = r.changeNotifier.NotifyCategoryChanged(ctx, categoryKey)
 		}
 
 		if err != nil {
-			slog.Warn("failed to invalidate schema cache", "category", categoryKey, "error", err.Error())
+			slog.Warn("failed to notify setting changes", "category", categoryKey, "error", err.Error())
 		}
 	}()
 }

@@ -458,8 +458,18 @@ func (s *settingsCacheService) deleteByPattern(ctx context.Context, pattern stri
 	return nil
 }
 
+// NotifyAllChanged 通知所有配置已变更（Domain 业务语义接口实现）。
+func (s *settingsCacheService) NotifyAllChanged(ctx context.Context) error {
+	return s.DeleteAll(ctx)
+}
+
+// NotifyCategoryChanged 通知指定分类的配置已变更（Domain 业务语义接口实现）。
+func (s *settingsCacheService) NotifyCategoryChanged(ctx context.Context, categoryKey string) error {
+	return s.DeleteByCategoryKey(ctx, categoryKey)
+}
+
 // 编译时检查：确保 settingsCacheService 实现了必要的接口
 var (
-	_ setting.SettingsCacheService    = (*settingsCacheService)(nil)
-	_ settingdomain.CacheInvalidator = (*settingsCacheService)(nil)
+	_ setting.SettingsCacheService        = (*settingsCacheService)(nil)
+	_ settingdomain.SettingChangeNotifier = (*settingsCacheService)(nil)
 )
