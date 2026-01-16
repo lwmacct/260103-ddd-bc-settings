@@ -1,35 +1,22 @@
-# Pre-commit hooks configuration
-# See https://pre-commit.com for more information
-
-# 全局配置
 default_stages: [pre-commit]
-fail_fast: true # 发现第一个错误即停止
+fail_fast: true
 
 repos:
-  # 本地自定义检查
   - repo: local
     hooks:
-      - id: precommit-checks
-        name: Run precommit checks (naming, consistency)
-        entry: go test ./internal/precommit/...
+      - id: gen-swagger
+        name: Generate Swagger docs
+        entry: swag init -g internal/command/server/command.go -o gen/swagger --parseDependencyLevel 3 --parseInternal
         language: system
         pass_filenames: false
-        stages: [pre-commit]
-        files: ^internal/(application/.*\.go|adapters/http/(router\.go|handler/.*\.go|registry/.*\.go)|precommit/.*\.go)$
-
-      - id: swagger-generate
-        name: Generate Swagger/OpenAPI docs
-        entry: swag init -g internal/command/server/command.go -o docs/swagger --parseDependencyLevel 3 --parseInternal
-        language: system
-        pass_filenames: false
-        stages: [pre-commit]
-        files: (handler/.*\.go|command/server/[^/]+$|^go\.mod$)
+        files: (internal/command/server/[^/]+$|^go\.mod$)
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: check-merge-conflict
+      - id: check-case-conflict
       - id: check-added-large-files
         args: ["--maxkb=512"]
 

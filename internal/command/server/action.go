@@ -23,7 +23,7 @@ import (
 	"github.com/lwmacct/260103-ddd-settings-bc/pkg/modules/settings"
 
 	// Swagger docs - 空白导入触发 docs.go 的 init() 函数
-	_ "github.com/lwmacct/260103-ddd-settings-bc/docs/swagger"
+	_ "github.com/lwmacct/260103-ddd-settings-bc/gen/swagger"
 )
 
 // action 启动 HTTP 服务器。

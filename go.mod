@@ -5,8 +5,8 @@ go 1.25.5
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.30.1
-	github.com/lwmacct/251207-go-pkg-cfgm v0.2.4
-	github.com/lwmacct/251219-go-pkg-logm v0.1.8
+	github.com/lwmacct/251207-go-pkg-cfgm v0.2.260109
+	github.com/lwmacct/251219-go-pkg-logm v0.2.260114
 	github.com/lwmacct/260103-ddd-shared v0.9.260108
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/stretchr/testify v1.11.1

@@ -1,24 +1,23 @@
 # 本地环境
 **/.DS_Store
-**/.local/*
-**/.venv/*
-**/.conda/*
-**/.task/remote/*
+**/.local/
+**/.venv/
+**/.conda/
+**/.task/remote/
 
-# 构建输出
-**/dist/**
-**/build/**
-**/*.vsix
-**/bin/
-
-# 秘密文件
-**/.env
-**/.secret/*
-**/config.yaml
+# 生成文件
+**/gen/
 
 # node_modules
-**/node_modules/**
+**/node_modules/
 **/tsconfig.tsbuildinfo
+
+# 构建输出
+
+**/bin/
+**/dist/
+**/build/
+**/*.vsix
 
 # 临时文件
 **/*.bak
@@ -35,33 +34,12 @@ logs/**
 temp/**
 cache/**
 
-# python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.pyw
-*.pyz
-*.pywz
-*.pyzw
+# Local env files
+.env
+.env.*
+!.env.example
+config/config.yaml
 
-# 前端相关
-coverage/
-dist-ssr/
-.eslintcache
-
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
-
-# Vitest
-__screenshots__/
-__snapshots__/
-
-# Swagger docs（由 swag 生成，但 docs.go 需要提交）
-**/docs/swagger.json
-**/docs/swagger.yaml
-
-# Markdown 文档（忽略根目录所有 .md，但不忽略 README.md）
-*.md
-!README.md
+# IDEs 和 编辑器
+.claude/
+.playwright-mcp/
